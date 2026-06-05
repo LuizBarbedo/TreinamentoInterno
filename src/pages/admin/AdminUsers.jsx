@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { FiUserPlus, FiUsers, FiRefreshCw } from 'react-icons/fi'
+import { PUBLICO_OPTIONS } from '../../lib/publicos'
 import './AdminUsers.css'
 
 const ROLES = [
   { value: 'user', label: 'Aluno' },
   { value: 'admin', label: 'Admin' },
-]
-
-const ACCESS_LEVELS = [
-  { value: 'basico', label: 'Básico' },
-  { value: 'intermediario', label: 'Intermediário' },
-  { value: 'avancado', label: 'Avançado' },
 ]
 
 export default function AdminUsers() {
@@ -98,18 +93,18 @@ export default function AdminUsers() {
     }
   }
 
-  const handleAccessLevelChange = async (userId, newLevel) => {
+  const handlePublicoChange = async (userId, newPublico) => {
     const previous = users
     setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, access_level: newLevel } : u))
+      prev.map((u) => (u.id === userId ? { ...u, publico: newPublico } : u))
     )
-    const { error: rpcError } = await supabase.rpc('set_user_access_level', {
+    const { error: rpcError } = await supabase.rpc('set_user_publico', {
       p_user_id: userId,
-      p_access_level: newLevel,
+      p_publico: newPublico,
     })
     if (rpcError) {
       setUsers(previous)
-      setError('Não foi possível atualizar o nível de acesso: ' + rpcError.message)
+      setError('Não foi possível atualizar o público: ' + rpcError.message)
     }
   }
 
@@ -214,7 +209,7 @@ export default function AdminUsers() {
                   <th>Nome</th>
                   <th>E-mail</th>
                   <th>Perfil</th>
-                  <th>Nível de Acesso</th>
+                  <th>Público</th>
                 </tr>
               </thead>
               <tbody>
@@ -229,12 +224,12 @@ export default function AdminUsers() {
                     </td>
                     <td>
                       <select
-                        value={u.access_level || 'basico'}
-                        onChange={(e) => handleAccessLevelChange(u.id, e.target.value)}
+                        value={u.publico || 'geral'}
+                        onChange={(e) => handlePublicoChange(u.id, e.target.value)}
                         className="access-level-select"
                       >
-                        {ACCESS_LEVELS.map((lvl) => (
-                          <option key={lvl.value} value={lvl.value}>{lvl.label}</option>
+                        {PUBLICO_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
                     </td>
