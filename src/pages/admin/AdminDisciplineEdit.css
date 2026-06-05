@@ -11,7 +11,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: #009b8f;
+  color: #3aa7af;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
@@ -20,12 +20,12 @@
 }
 
 .admin-edit-header .back-link:hover {
-  color: #007a71;
+  color: #2e8589;
 }
 
 .admin-edit-header h1 {
   font-size: 1.6rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.25rem;
 }
 
@@ -53,12 +53,12 @@
 }
 
 .admin-tab:hover {
-  color: #009b8f;
+  color: #3aa7af;
 }
 
 .admin-tab.active {
-  color: #009b8f;
-  border-bottom-color: #009b8f;
+  color: #3aa7af;
+  border-bottom-color: #3aa7af;
   font-weight: 600;
 }
 
@@ -78,7 +78,7 @@
 
 .section-toolbar h3 {
   font-size: 1.1rem;
-  color: #00405b;
+  color: #0f5e78;
 }
 
 /* Admin List */
@@ -114,7 +114,7 @@
   min-width: 32px;
   height: 32px;
   background: #e8f5f4;
-  color: #009b8f;
+  color: #3aa7af;
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -126,7 +126,7 @@
   align-items: center;
   padding: 0.25rem 0.6rem;
   background: #d6f0ee;
-  color: #009b8f;
+  color: #3aa7af;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -142,7 +142,7 @@
 .item-info strong {
   display: block;
   font-size: 0.95rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.15rem;
 }
 
@@ -179,7 +179,7 @@
 
 .btn-edit {
   background: #d6f0ee;
-  color: #009b8f;
+  color: #3aa7af;
 }
 
 .btn-edit:hover {
@@ -230,8 +230,8 @@
 
 .btn-add-quiz-shortcut {
   background: none;
-  border: 1px dashed #009b8f;
-  color: #009b8f;
+  border: 1px dashed #3aa7af;
+  color: #3aa7af;
   padding: 0.15rem 0.6rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -252,7 +252,7 @@
 /* Quiz-specific styles */
 .quiz-section-title {
   font-size: 1rem;
-  color: #00405b;
+  color: #0f5e78;
   margin: 1.5rem 0 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #eee;
@@ -317,7 +317,7 @@
 
 .option-input-row input:focus {
   outline: none;
-  border-color: #009b8f;
+  border-color: #3aa7af;
   box-shadow: 0 0 0 3px rgba(0, 155, 143, 0.1);
 }
 
@@ -373,10 +373,10 @@
   gap: 0.4rem;
   align-self: flex-start;
   padding: 0.55rem 1rem;
-  border: 1.5px dashed #009b8f;
+  border: 1.5px dashed #3aa7af;
   border-radius: 8px;
   background: #f0fbfa;
-  color: #009b8f;
+  color: #3aa7af;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -420,12 +420,12 @@
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border: 2px solid #009b8f;
+  border: 2px solid #3aa7af;
 }
 
 .admin-form-card h3 {
   margin-bottom: 1rem;
-  color: #00405b;
+  color: #0f5e78;
   font-size: 1.1rem;
 }
 
@@ -472,7 +472,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #009b8f;
+  border-color: #3aa7af;
   box-shadow: 0 0 0 3px rgba(0, 155, 143, 0.1);
 }
 
@@ -490,7 +490,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background: #009b8f;
+  background: #3aa7af;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -502,7 +502,7 @@
 }
 
 .btn-primary:hover {
-  background: #007a71;
+  background: #2e8589;
 }
 
 .btn-primary:disabled {
@@ -597,9 +597,9 @@
 }
 
 .file-upload-label:hover {
-  border-color: #009b8f;
+  border-color: #3aa7af;
   background: #e0f7f5;
-  color: #009b8f;
+  color: #3aa7af;
 }
 
 .file-upload-label svg {
@@ -613,13 +613,13 @@
   padding: 0.6rem 0.75rem;
   background: #e0f7f5;
   border-radius: 8px;
-  color: #00405b;
+  color: #0f5e78;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
 .file-selected-info svg {
-  color: #009b8f;
+  color: #3aa7af;
   flex-shrink: 0;
 }
 

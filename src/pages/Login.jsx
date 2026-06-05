@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
-import logoImg from '../assets/logo-branco-aprendiz-longa.png'
+import logoImg from '../assets/logo-capacita-portos-branco.png'
 import './Login.css'
 
 export default function Login() {
@@ -31,7 +31,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <img src={logoImg} alt="Aprendiz" className="login-logo" />
+          <img src={logoImg} alt="Programa Capacita Portos — Profissional Portuário" className="login-logo" />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

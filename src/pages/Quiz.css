@@ -8,7 +8,7 @@
 
 .quiz-header h1 {
   font-size: 1.6rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.5rem;
 }
 
@@ -25,7 +25,7 @@
   background: #e0f7f5;
   border-radius: 8px;
   font-size: 0.85rem;
-  color: #009b8f;
+  color: #3aa7af;
   font-weight: 600;
 }
 
@@ -49,7 +49,7 @@
 
 .quiz-locked h2 {
   font-size: 1.5rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.75rem;
 }
 
@@ -90,7 +90,7 @@
 
 .btn-go-back {
   display: inline-block;
-  background: linear-gradient(135deg, #002d3d, #009b8f);
+  background: linear-gradient(135deg, #08323f, #3aa7af);
   color: #fff;
   padding: 0.75rem 2rem;
   border-radius: 10px;
@@ -148,7 +148,7 @@
 }
 
 .btn-retry {
-  background: #009b8f;
+  background: #3aa7af;
   color: #fff;
   border: none;
   padding: 0.6rem 1.5rem;
@@ -184,13 +184,13 @@
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #009b8f;
+  color: #3aa7af;
   letter-spacing: 0.5px;
 }
 
 .question-text {
   font-size: 1.05rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 1rem;
   line-height: 1.5;
 }
@@ -216,12 +216,12 @@
 }
 
 .option:hover:not(:disabled) {
-  border-color: #009b8f;
+  border-color: #3aa7af;
   background: #f0faf9;
 }
 
 .option.selected {
-  border-color: #009b8f;
+  border-color: #3aa7af;
   background: #e0f7f5;
 }
 
@@ -254,7 +254,7 @@
 }
 
 .option.selected .option-letter {
-  background: #009b8f;
+  background: #3aa7af;
   color: #fff;
 }
 
@@ -275,7 +275,7 @@
 .btn-submit-quiz {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #002d3d, #009b8f);
+  background: linear-gradient(135deg, #08323f, #3aa7af);
   color: #fff;
   border: none;
   border-radius: 12px;

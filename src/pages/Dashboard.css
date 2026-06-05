@@ -4,7 +4,7 @@
 
 .dashboard-welcome h1 {
   font-size: 1.8rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.5rem;
 }
 
@@ -32,7 +32,7 @@
 
 .stat-icon {
   font-size: 1.8rem;
-  color: #009b8f;
+  color: #3aa7af;
   flex-shrink: 0;
   stroke: currentColor;
 }
@@ -41,7 +41,7 @@
   display: block;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #00405b;
+  color: #0f5e78;
 }
 
 .stat-label {
@@ -72,11 +72,11 @@
 
 .section-header h2 {
   font-size: 1.3rem;
-  color: #00405b;
+  color: #0f5e78;
 }
 
 .btn-see-all {
-  color: #009b8f;
+  color: #3aa7af;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -104,7 +104,7 @@
 }
 
 .discipline-card:hover {
-  border-color: #009b8f;
+  border-color: #3aa7af;
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -157,7 +157,7 @@
 }
 
 .discipline-card h3 {
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
 }

@@ -114,13 +114,13 @@
 
 /* ---------- Tier: Diamond ---------- */
 .badge-diamond {
-  border-color: #4dd4c8;
+  border-color: #5fc4c9;
   background: linear-gradient(135deg, #e0f7f5 0%, #b2dfdb 50%, #80cbc4 100%);
   box-shadow: 0 2px 16px rgba(77, 212, 200, 0.35);
 }
 
 .badge-diamond .badge-tier-tag {
-  color: #00b3a6;
+  color: #47b8bd;
   font-weight: 700;
 }
 
@@ -218,7 +218,7 @@
 
 .discipline-badge-title {
   font-weight: 600;
-  color: #00405b;
+  color: #0f5e78;
   font-size: 0.95rem;
   flex: 1;
 }
@@ -289,7 +289,7 @@
 .badge-unlocked-header {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 1.2rem;
 }
 
@@ -326,7 +326,7 @@
 .badge-unlocked-name {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.25rem;
 }
 
@@ -335,7 +335,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #00b3a6;
+  color: #47b8bd;
   margin-bottom: 0.5rem;
 }
 
@@ -347,7 +347,7 @@
 }
 
 .badge-unlocked-btn {
-  background: linear-gradient(135deg, #009b8f, #00b3a6);
+  background: linear-gradient(135deg, #3aa7af, #47b8bd);
   color: #fff;
   border: none;
   padding: 0.65rem 2rem;
@@ -402,7 +402,7 @@
 
 .conquistas-header h1 {
   font-size: 1.8rem;
-  color: #00405b;
+  color: #0f5e78;
   margin-bottom: 0.5rem;
 }
 
@@ -430,7 +430,7 @@
   display: block;
   font-size: 2rem;
   font-weight: 700;
-  color: #009b8f;
+  color: #3aa7af;
 }
 
 .conquista-stat-label {
@@ -515,14 +515,14 @@
 
 .detail-badges-header h3 {
   font-size: 1rem;
-  color: #00405b;
+  color: #0f5e78;
   margin: 0;
   flex: 1;
 }
 
 .detail-badges-count {
   font-size: 0.75rem;
-  color: #009b8f;
+  color: #3aa7af;
   background: #e0f7f5;
   padding: 0.15rem 0.5rem;
   border-radius: 10px;
@@ -585,7 +585,7 @@
   padding: 1.5rem 2rem;
   margin-bottom: 2rem;
   background: linear-gradient(135deg, #e0f7f5 0%, #d6f0ee 50%, #fff9e6 100%);
-  border: 2px solid #4dd4c8;
+  border: 2px solid #5fc4c9;
   border-radius: 16px;
   animation: globalBadgePulse 3s ease-in-out infinite;
 }
@@ -593,7 +593,7 @@
 .conquistas-global-badge p {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #005f56;
+  color: #1f6469;
   margin: 0;
 }
 
@@ -615,7 +615,7 @@
 
 .ranking-header h2 {
   font-size: 1.5rem;
-  color: #00405b;
+  color: #0f5e78;
   margin: 0 0 0.25rem 0;
 }
 
@@ -653,7 +653,7 @@
 }
 
 .ranking-table thead {
-  background: linear-gradient(135deg, #00405b, #003347);
+  background: linear-gradient(135deg, #0f5e78, #0b4a5e);
 }
 
 .ranking-table thead th {
@@ -712,14 +712,14 @@
 
 .ranking-name {
   font-weight: 600;
-  color: #00405b;
+  color: #0f5e78;
 }
 
 .ranking-you-tag {
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.1rem 0.5rem;
-  background: linear-gradient(135deg, #009b8f, #007a71);
+  background: linear-gradient(135deg, #3aa7af, #2e8589);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -736,7 +736,7 @@
 
 .ranking-row-current {
   background: linear-gradient(90deg, #f0faf9, #d6f0ee) !important;
-  border-left: 3px solid #009b8f;
+  border-left: 3px solid #3aa7af;
 }
 
 .ranking-row-top:nth-child(1) {

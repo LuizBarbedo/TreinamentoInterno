@@ -44,7 +44,7 @@ export default function Layout() {
       >
         <div className="sidebar-header">
           <span className="sidebar-logo"><GraduationCapIcon size={28} gradient /></span>
-          <h2 className="sidebar-title">Treinamento</h2>
+          <h2 className="sidebar-title">Capacita Portos</h2>
           <button
             className="sidebar-toggle"
             onClick={() => setCollapsed(prev => !prev)}

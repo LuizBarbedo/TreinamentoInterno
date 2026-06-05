@@ -112,7 +112,7 @@ export default function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-welcome">
         <h1>Olá, {displayName}! 👋</h1>
-        <p>Bem-vindo à plataforma de treinamento. Continue seus estudos de onde parou.</p>
+        <p>Bem-vindo ao Capacita Portos. Continue seus estudos de onde parou.</p>
       </div>
 
       <div className="stats-grid">

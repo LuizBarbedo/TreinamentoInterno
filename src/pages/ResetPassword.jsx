@@ -59,7 +59,7 @@ export default function ResetPassword() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>🎓 Treinamento</h1>
+          <h1>Capacita Portos</h1>
           <p>Redefinir Senha</p>
         </div>
 

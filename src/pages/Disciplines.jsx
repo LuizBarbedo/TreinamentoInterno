@@ -40,7 +40,7 @@ export default function Disciplines() {
 
   return (
     <div className="disciplines-page">
-      <h1>📚 Conteúdo do Treinamento</h1>
+      <h1>📚 Conteúdo do Programa</h1>
       <p className="page-subtitle">Módulos disponíveis para o seu perfil</p>
 
       {visibleModules.length === 0 && (

@@ -1,6 +1,6 @@
-# Treinamento Interno
+# Capacita Portos — Profissional Portuário
 
-Plataforma de treinamento corporativo para funcionários internos, desenvolvida com React, Vite e Supabase. Os colaboradores acessam módulos com disciplinas e vídeo aulas, material de leitura e quizzes, com conteúdo segmentado por público (geral, estratégico/tático, gerencial/técnico e operacional).
+Plataforma do **Programa Capacita Portos** (capacitação profissional portuária), desenvolvida com React, Vite e Supabase. Os colaboradores acessam módulos com disciplinas e vídeo aulas, material de leitura e quizzes, com conteúdo segmentado por público (geral, estratégico/tático, gerencial/técnico e operacional).
 
 > Projeto derivado de uma plataforma de e-learning existente, adaptado para o contexto corporativo interno.
 

@@ -1,13 +1,13 @@
 /**
- * Custom SVG icons with brand gradient (teal #009b8f → dark blue #00405b)
+ * Custom SVG icons with brand gradient (teal #3aa7af → dark blue #0f5e78)
  * Matching the platform visual identity
  */
 
 const GradientDef = ({ id }) => (
   <defs>
     <linearGradient id={id} x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stopColor="#009b8f" />
-      <stop offset="100%" stopColor="#00405b" />
+      <stop offset="0%" stopColor="#3aa7af" />
+      <stop offset="100%" stopColor="#0f5e78" />
     </linearGradient>
   </defs>
 )

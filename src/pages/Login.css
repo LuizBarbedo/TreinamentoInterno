@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #00405b 0%, #003347 50%, #002d3d 100%);
+  background: linear-gradient(135deg, #0f5e78 0%, #0b4a5e 50%, #08323f 100%);
   padding: 1rem;
 }
 
@@ -17,7 +17,7 @@
 }
 
 .login-header {
-  background: linear-gradient(135deg, #002d3d, #009b8f);
+  background: linear-gradient(135deg, #08323f, #3aa7af);
   color: #fff;
   padding: 0;
   text-align: center;
@@ -25,11 +25,12 @@
 }
 
 .login-logo {
-  max-width: 320px;
+  max-width: 300px;
   width: 100%;
   height: auto;
   display: block;
-  margin: -5rem auto -5rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
 }
 
 
@@ -40,7 +41,7 @@
 
 .login-form h2 {
   margin-bottom: 1.5rem;
-  color: #00405b;
+  color: #0f5e78;
   text-align: center;
 }
 
@@ -68,7 +69,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #009b8f;
+  border-color: #3aa7af;
 }
 
 .form-error {
@@ -92,7 +93,7 @@
 .btn-primary {
   width: 100%;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #002d3d, #009b8f);
+  background: linear-gradient(135deg, #08323f, #3aa7af);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -126,7 +127,7 @@
 .btn-link {
   background: none;
   border: none;
-  color: #009b8f;
+  color: #3aa7af;
   font-weight: 600;
   cursor: pointer;
   font-size: inherit;
@@ -161,14 +162,14 @@
 }
 
 .btn-monitor-toggle:hover {
-  border-color: #009b8f;
-  color: #009b8f;
+  border-color: #3aa7af;
+  color: #3aa7af;
   background: #e0f7f5;
 }
 
 .monitor-signup-toggle.active .btn-monitor-toggle {
-  border-color: #009b8f;
-  color: #009b8f;
+  border-color: #3aa7af;
+  color: #3aa7af;
   background: #e0f7f5;
   border-style: solid;
 }

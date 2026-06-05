@@ -88,7 +88,7 @@ export default function AdminDisciplines() {
       <div className="admin-header">
         <div>
           <h1>⚙️ Gerenciar Disciplinas</h1>
-          <p className="admin-subtitle">Crie, edite e organize as disciplinas do treinamento</p>
+          <p className="admin-subtitle">Crie, edite e organize as disciplinas do programa</p>
         </div>
         <button className="btn-primary" onClick={() => { resetForm(); setShowForm(true) }}>
           <FiPlus /> Nova Disciplina

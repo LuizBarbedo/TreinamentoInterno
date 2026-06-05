@@ -6,7 +6,7 @@
 /* ==================== SIDEBAR ==================== */
 .sidebar {
   width: 68px;
-  background: linear-gradient(180deg, #00405b 0%, #003347 100%);
+  background: linear-gradient(180deg, #0f5e78 0%, #0b4a5e 100%);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -132,7 +132,7 @@
 .nav-item.active {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border-left-color: #009b8f;
+  border-left-color: #3aa7af;
 }
 
 /* Section divider/label */
@@ -200,7 +200,7 @@
   align-items: center;
   gap: 0.5rem;
   background: rgba(0, 155, 143, 0.15);
-  color: #009b8f;
+  color: #3aa7af;
   border: 1px solid rgba(0, 155, 143, 0.3);
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -239,7 +239,7 @@
   position: absolute;
   top: -8px;
   right: -10px;
-  background: #009b8f;
+  background: #3aa7af;
   color: #fff;
   font-size: 0.55rem;
   font-weight: 700;
@@ -251,7 +251,7 @@
   justify-content: center;
   padding: 0 3px;
   line-height: 1;
-  box-shadow: 0 0 0 2px #00405b;
+  box-shadow: 0 0 0 2px #0f5e78;
   animation: badge-pulse 2s infinite;
   pointer-events: none;
   z-index: 1;
@@ -286,7 +286,7 @@
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
-  background: #00405b;
+  background: #0f5e78;
   color: #fff;
   padding: 0.35rem 0.7rem;
   border-radius: 6px;
@@ -321,7 +321,7 @@
     top: 0.75rem;
     left: 0.75rem;
     z-index: 101;
-    background: #00405b;
+    background: #0f5e78;
     color: #fff;
     border: none;
     padding: 0.5rem;
