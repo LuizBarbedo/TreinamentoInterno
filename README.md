@@ -1,22 +1,19 @@
-# Treinamento
+# Treinamento Interno
 
-Plataforma de e-learning gamificada, desenvolvida com React, Vite e Supabase. Permite que alunos estudem disciplinas sequenciais, realizem quizzes, tirem dúvidas com monitores e acumulem badges de conquistas.
+Plataforma de treinamento corporativo para funcionários internos, desenvolvida com React, Vite e Supabase. Os colaboradores acessam módulos com disciplinas e vídeo aulas, material de leitura e quizzes, com conteúdo segmentado por público (geral, estratégico/tático, gerencial/técnico e operacional).
 
-Teste de deploy automatico 3.
-
-Teste de deploy automatico.
+> Projeto derivado de uma plataforma de e-learning existente, adaptado para o contexto corporativo interno.
 
 ## Funcionalidades
 
 - **Autenticação** – cadastro, login, recuperação e redefinição de senha.
-- **Disciplinas** – trilha sequencial de matérias; a próxima disciplina só é desbloqueada após concluir a anterior.
-- **Aulas e Quizzes** – cada disciplina possui aulas com quiz individual e quiz final.
-- **Badges / Conquistas** – sistema de gamificação com medalhas de bronze, prata, ouro e diamante conquistadas conforme o desempenho nos quizzes.
-- **Fórum** – espaço de discussão aberto para os alunos.
-- **Minhas Dúvidas** – alunos podem enviar perguntas que são respondidas por monitores.
-- **Chat com IA** – assistente integrado com o Google Gemini para tirar dúvidas.
-- **Painel do Monitor** – monitores acompanham o progresso dos alunos e respondem dúvidas.
-- **Painel Administrativo** – administradores gerenciam disciplinas, relatórios e monitores.
+- **Módulos → Disciplinas → Aulas** – conteúdo organizado em módulos, que contêm disciplinas com vídeo aulas.
+- **Material de leitura** – apostilas, PDFs e artigos por disciplina.
+- **Quizzes** – quiz por aula e quiz final da disciplina.
+- **Públicos** – conteúdo segmentado por público-alvo; cada funcionário pertence a um público e enxerga o conteúdo do seu público + o conteúdo geral.
+- **Badges / Conquistas** – sistema de gamificação com medalhas conquistadas conforme o desempenho.
+- **Fórum** – espaço de discussão entre os colaboradores.
+- **Painel Master/Admin** – usuário master insere os conteúdos para os diferentes públicos e emite relatórios.
 
 ## Tecnologias
 
@@ -25,14 +22,12 @@ Teste de deploy automatico.
 | Frontend | React 19 + Vite |
 | Roteamento | React Router DOM v7 |
 | Backend / BD | Supabase (PostgreSQL + Auth + Storage) |
-| IA | Google Generative AI (Gemini) |
 | Ícones | React Icons |
 
 ## Pré-requisitos
 
 - Node.js 18+ (ou Bun)
 - Conta no [Supabase](https://supabase.com/) com o schema aplicado (`supabase/schema.sql`)
-- Chave de API do [Google Gemini](https://aistudio.google.com/)
 
 ## Configuração
 
@@ -52,8 +47,7 @@ Teste de deploy automatico.
    |----------|-----------|
    | `VITE_SUPABASE_URL` | URL do projeto Supabase |
    | `VITE_SUPABASE_ANON_KEY` | Chave anônima do Supabase |
-   | `VITE_GEMINI_API_KEY` | Chave de API do Google Gemini |
-   | `VITE_PASSWORD_RESET_REDIRECT_URL` | URL completa de redefinição de senha (ex.: `https://capacitaportos.com.br/redefinir-senha`) |
+   | `VITE_PASSWORD_RESET_REDIRECT_URL` | URL completa de redefinição de senha |
 
 3. Aplique as migrações no Supabase executando os arquivos da pasta `supabase/` (começando por `schema.sql` e depois os arquivos `migration_*.sql`).
 
@@ -63,7 +57,7 @@ Teste de deploy automatico.
 npm run dev
 ```
 
-A aplicação estará disponível em `http://localhost:5173`.
+A aplicação estará disponível em `http://localhost:8571`.
 
 ## Build de produção
 
@@ -76,11 +70,10 @@ npm run preview
 
 ```
 src/
-├── components/   # Componentes reutilizáveis (Layout, Badges, AIChat…)
+├── components/   # Componentes reutilizáveis (Layout, Badges…)
 ├── contexts/     # Contexto de autenticação
 ├── lib/          # Clientes Supabase, lógica de badges
 ├── pages/        # Páginas da aplicação
-│   ├── admin/    # Páginas do painel administrativo
-│   └── monitor/  # Páginas do painel do monitor
+│   └── admin/    # Páginas do painel administrativo (master)
 └── assets/       # Recursos estáticos
 ```

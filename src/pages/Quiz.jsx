@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeUnlocked } from '../components/Badges'
 import { FiLock } from 'react-icons/fi'
-import AIChat from '../components/AIChat'
 import './Quiz.css'
 
 export default function Quiz() {
@@ -296,8 +295,6 @@ export default function Quiz() {
           )}
         </div>
       )}
-
-      <AIChat discipline={discipline} lessons={[]} materials={[]} />
 
       {/* Badge Unlocked Popup */}
       {newBadge && <BadgeUnlocked badge={newBadge} onClose={() => setNewBadge(null)} />}

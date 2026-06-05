@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
 import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiMessageCircle, FiDownload, FiEdit3, FiBookOpen } from 'react-icons/fi'
-import AIChat from '../components/AIChat'
 import { canSeeReflexao, canSeeArtigoTecnico } from '../lib/accessLevels'
 import './DisciplineDetail.css'
 
@@ -772,8 +771,6 @@ export default function DisciplineDetail() {
           </div>
         )}
       </div>
-
-      <AIChat discipline={discipline} lessons={lessons} materials={materials} />
 
       {/* Badge Unlocked Popup */}
       {newBadge && <BadgeUnlocked badge={newBadge} onClose={() => setNewBadge(null)} />}
