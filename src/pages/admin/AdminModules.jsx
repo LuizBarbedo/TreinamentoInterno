@@ -146,7 +146,7 @@ export default function AdminModules() {
         </div>
       )}
 
-      <div className="admin-table">
+      <div className="admin-table table-modules">
         <div className="table-header">
           <span className="col-icon">Ícone</span>
           <span className="col-name">Módulo</span>
