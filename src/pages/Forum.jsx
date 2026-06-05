@@ -350,14 +350,11 @@ export default function Forum() {
 
               <div className="post-card-footer">
                 <div className="post-card-author">
-                  <span className={`post-author-avatar ${post.author_role === 'monitor' ? 'monitor' : ''}`}>
+                  <span className="post-author-avatar">
                     {getAuthorInitials(post)}
                   </span>
                   <span className="post-author-name">{post.author_name || 'Usuário'}</span>
                   <span>• {formatDate(post.created_at)}</span>
-                  {post.author_role === 'monitor' && (
-                    <span className="post-author-role monitor">Monitor</span>
-                  )}
                 </div>
                 <div className="post-card-stats">
                   <span><FiThumbsUp /> {post.like_count}</span>

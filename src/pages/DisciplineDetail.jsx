@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
-import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiMessageCircle, FiDownload, FiEdit3, FiBookOpen } from 'react-icons/fi'
+import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiEdit3, FiBookOpen } from 'react-icons/fi'
 import { canSeeReflexao, canSeeArtigoTecnico } from '../lib/accessLevels'
 import './DisciplineDetail.css'
 
@@ -22,7 +22,7 @@ function getEmbedUrl(url) {
 
 export default function DisciplineDetail() {
   const { id } = useParams()
-  const { user, isAdmin, isMonitor, accessLevel } = useAuth()
+  const { user, isAdmin, accessLevel } = useAuth()
   const showReflexao = canSeeReflexao(accessLevel)
   const showArtigoTecnico = canSeeArtigoTecnico(accessLevel)
   const [discipline, setDiscipline] = useState(null)
@@ -32,7 +32,6 @@ export default function DisciplineDetail() {
   const [activeTab, setActiveTab] = useState('aulas')
   const [activeLesson, setActiveLesson] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [hasMonitor, setHasMonitor] = useState(false)
 
   // Lesson quiz state
   const [lessonQuizQuestions, setLessonQuizQuestions] = useState({})
@@ -95,19 +94,17 @@ export default function DisciplineDetail() {
   }, [allLessonsCompleted, hasFinalQuiz])
 
   const fetchData = async () => {
-    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, monitorRes, finalQuizRes, lessonQuizzesRes] = await Promise.all([
+    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, finalQuizRes, lessonQuizzesRes] = await Promise.all([
       supabase.from('disciplines').select('*').eq('id', id).single(),
       supabase.from('lessons').select('*').eq('discipline_id', id).order('order_index'),
       supabase.from('materials').select('*').eq('discipline_id', id).order('created_at'),
       supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id).eq('discipline_id', id),
       supabase.from('lesson_quiz_results').select('lesson_id, discipline_id, score, correct_answers, total_questions').eq('user_id', user.id).eq('discipline_id', id),
       supabase.from('quiz_results').select('discipline_id, score, correct_answers, total_questions').eq('user_id', user.id).eq('discipline_id', id).single(),
-      supabase.from('monitor_students').select('monitor_id').eq('student_id', user.id).maybeSingle(),
       supabase.from('quiz_questions').select('id').eq('discipline_id', id).is('lesson_id', null).limit(1),
       supabase.from('quiz_questions').select('lesson_id').eq('discipline_id', id).not('lesson_id', 'is', null),
     ])
 
-    setHasMonitor(!!monitorRes.data)
     setHasFinalQuiz((finalQuizRes.data || []).length > 0)
     setLessonsWithQuiz(new Set((lessonQuizzesRes.data || []).map(q => q.lesson_id).filter(Boolean)))
 
@@ -699,22 +696,6 @@ export default function DisciplineDetail() {
               <p>Em breve: artigos e textos técnicos desta disciplina.</p>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Botão de tirar dúvida - visível para alunos com monitor */}
-      {!isAdmin && !isMonitor && hasMonitor && (
-        <div className="doubt-cta-section">
-          <div className="doubt-cta-content">
-            <FiMessageCircle className="doubt-cta-icon" />
-            <div>
-              <h3>Tem alguma dúvida sobre esta disciplina?</h3>
-              <p>Envie sua dúvida para seu monitor e receba uma resposta.</p>
-            </div>
-          </div>
-          <Link to={`/minhas-duvidas?disciplina=${id}`} className="btn-doubt-cta">
-            <FiMessageCircle /> Tirar Dúvida
-          </Link>
         </div>
       )}
 

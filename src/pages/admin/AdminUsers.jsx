@@ -5,7 +5,6 @@ import './AdminUsers.css'
 
 const ROLES = [
   { value: 'user', label: 'Aluno' },
-  { value: 'monitor', label: 'Monitor' },
   { value: 'admin', label: 'Admin' },
 ]
 
@@ -119,7 +118,6 @@ export default function AdminUsers() {
     const user = users.find(u => u.id === userId || u.email === email)
     if (!user) return 'Aluno'
     if (user.role === 'admin') return 'Admin'
-    if (user.role === 'monitor') return 'Monitor'
     return 'Aluno'
   }
 

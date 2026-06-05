@@ -15,7 +15,7 @@ import './ForumPost.css'
 export default function ForumPost() {
   const { postId } = useParams()
   const navigate = useNavigate()
-  const { user, isAdmin, isMonitor } = useAuth()
+  const { user, isAdmin } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [post, setPost] = useState(null)
@@ -311,13 +311,10 @@ export default function ForumPost() {
 
         <div className="post-meta">
           <div className="author-info">
-            <span className={`post-author-avatar ${post.author_role === 'monitor' ? 'monitor' : ''}`}>
+            <span className="post-author-avatar">
               {getInitials(post.author_name)}
             </span>
             <span className="post-author-name">{post.author_name || 'Usuário'}</span>
-            {post.author_role === 'monitor' && (
-              <span className="post-author-role monitor">Monitor</span>
-            )}
             <span>• {formatDate(post.created_at)}</span>
           </div>
         </div>
@@ -373,13 +370,10 @@ export default function ForumPost() {
               <div key={reply.id} className={`reply-card ${reply.is_solution ? 'solution' : ''}`}>
                 <div className="reply-header">
                   <div className="reply-author">
-                    <span className={`post-author-avatar ${reply.author_role === 'monitor' ? 'monitor' : ''}`}>
+                    <span className="post-author-avatar">
                       {getInitials(reply.author_name)}
                     </span>
                     <span className="post-author-name">{reply.author_name || 'Usuário'}</span>
-                    {reply.author_role === 'monitor' && (
-                      <span className="post-author-role monitor">Monitor</span>
-                    )}
                     <span>{formatDate(reply.created_at)}</span>
                   </div>
                   {reply.is_solution && (
