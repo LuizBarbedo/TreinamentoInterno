@@ -2,84 +2,91 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { FiLock, FiCheck } from 'react-icons/fi'
+import { FiCheck } from 'react-icons/fi'
+import { filterByPublico, PUBLICO_LABELS } from '../lib/publicos'
 import './Disciplines.css'
 
 export default function Disciplines() {
-  const { user } = useAuth()
+  const { user, publico, isAdmin } = useAuth()
+  const [modules, setModules] = useState([])
   const [disciplines, setDisciplines] = useState([])
   const [completedDisciplines, setCompletedDisciplines] = useState(new Set())
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDisciplines()
+    fetchData()
   }, [])
 
-  const fetchDisciplines = async () => {
-    const [discRes, progressRes] = await Promise.all([
+  const fetchData = async () => {
+    const [modRes, discRes, progressRes] = await Promise.all([
+      supabase.from('modules').select('*').order('order_index'),
       supabase.from('disciplines').select('*').order('order_index'),
       supabase.from('user_progress').select('discipline_id').eq('user_id', user.id).eq('completed', true)
     ])
-
-    if (discRes.data) setDisciplines(discRes.data)
+    setModules(modRes.data || [])
+    setDisciplines(discRes.data || [])
     if (progressRes.data) {
       setCompletedDisciplines(new Set(progressRes.data.map(p => p.discipline_id)))
     }
     setLoading(false)
   }
 
-  const isDisciplineAccessible = (index) => {
-    if (index === 0) return true
-    return completedDisciplines.has(disciplines[index - 1].id)
-  }
-
   if (loading) {
     return <div className="loading-screen"><div className="spinner"></div></div>
   }
 
+  // O master vê todos os módulos; o funcionário vê os do seu público + os "geral".
+  const visibleModules = isAdmin ? modules : filterByPublico(modules, publico)
+
   return (
     <div className="disciplines-page">
-      <h1>📚 Disciplinas</h1>
-      <p className="page-subtitle">Complete cada disciplina em ordem para avançar</p>
+      <h1>📚 Conteúdo do Treinamento</h1>
+      <p className="page-subtitle">Módulos disponíveis para o seu perfil</p>
 
-      <div className="disciplines-list">
-        {disciplines.map((disc, index) => {
-          const accessible = isDisciplineAccessible(index)
-          const isCompleted = completedDisciplines.has(disc.id)
+      {visibleModules.length === 0 && (
+        <div className="empty-state">
+          <p>Nenhum módulo disponível para o seu público no momento.</p>
+        </div>
+      )}
 
-          if (!accessible) {
-            return (
-              <div key={disc.id} className="discipline-item discipline-locked">
-                <div className="disc-icon">{disc.icon || '📖'}</div>
-                <div className="disc-info">
-                  <h3>{disc.name}</h3>
-                  <p>{disc.description}</p>
-                  <span className="disc-locked-msg"><FiLock /> Complete a disciplina anterior para desbloquear</span>
+      {visibleModules.map(mod => {
+        const moduleDisciplines = disciplines.filter(d => d.module_id === mod.id)
+        return (
+          <section key={mod.id} className="module-section">
+            <div className="module-header">
+              <span className="module-icon">{mod.icon || '📦'}</span>
+              <div className="module-title">
+                <h2>{mod.name}</h2>
+                {mod.description && <p>{mod.description}</p>}
+              </div>
+              <span className="module-publico">{PUBLICO_LABELS[mod.publico] || mod.publico}</span>
+            </div>
+
+            <div className="disciplines-list">
+              {moduleDisciplines.map(disc => {
+                const isCompleted = completedDisciplines.has(disc.id)
+                return (
+                  <Link key={disc.id} to={`/disciplinas/${disc.id}`} className={`discipline-item ${isCompleted ? 'discipline-completed' : ''}`}>
+                    <div className="disc-icon">{disc.icon || '📖'}</div>
+                    <div className="disc-info">
+                      <h3>{disc.name}</h3>
+                      <p>{disc.description}</p>
+                      {isCompleted && <span className="disc-completed-badge"><FiCheck /> Concluída</span>}
+                    </div>
+                    <div className="disc-arrow">{isCompleted ? <FiCheck /> : '→'}</div>
+                  </Link>
+                )
+              })}
+
+              {moduleDisciplines.length === 0 && (
+                <div className="empty-state">
+                  <p>Nenhuma disciplina neste módulo ainda.</p>
                 </div>
-                <div className="disc-arrow disc-arrow-locked"><FiLock /></div>
-              </div>
-            )
-          }
-
-          return (
-            <Link key={disc.id} to={`/disciplinas/${disc.id}`} className={`discipline-item ${isCompleted ? 'discipline-completed' : ''}`}>
-              <div className="disc-icon">{disc.icon || '📖'}</div>
-              <div className="disc-info">
-                <h3>{disc.name}</h3>
-                <p>{disc.description}</p>
-                {isCompleted && <span className="disc-completed-badge"><FiCheck /> Concluída</span>}
-              </div>
-              <div className="disc-arrow">{isCompleted ? <FiCheck /> : '→'}</div>
-            </Link>
-          )
-        })}
-
-        {disciplines.length === 0 && (
-          <div className="empty-state">
-            <p>Nenhuma disciplina cadastrada.</p>
-          </div>
-        )}
-      </div>
+              )}
+            </div>
+          </section>
+        )
+      })}
     </div>
   )
 }

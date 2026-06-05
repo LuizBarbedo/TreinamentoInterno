@@ -21,7 +21,7 @@ function getEmbedUrl(url) {
 
 export default function DisciplineDetail() {
   const { id } = useParams()
-  const { user, isAdmin } = useAuth()
+  const { user } = useAuth()
   const [discipline, setDiscipline] = useState(null)
   const [lessons, setLessons] = useState([])
   const [materials, setMaterials] = useState([])

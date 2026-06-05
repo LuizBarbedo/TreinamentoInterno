@@ -4,29 +4,36 @@ import { supabase } from '../../lib/supabase'
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import './AdminDisciplines.css'
 
+const EMPTY_FORM = { name: '', description: '', icon: '📚', order_index: 0, module_id: '' }
+
 export default function AdminDisciplines() {
   const [disciplines, setDisciplines] = useState([])
+  const [modules, setModules] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [form, setForm] = useState({ name: '', description: '', icon: '📚', order_index: 0 })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetchDisciplines()
+    fetchData()
   }, [])
 
-  const fetchDisciplines = async () => {
-    const { data } = await supabase
-      .from('disciplines')
-      .select('*, lessons(count), materials(count), quiz_questions(count)')
-      .order('order_index')
-    setDisciplines(data || [])
+  const fetchData = async () => {
+    const [discRes, modRes] = await Promise.all([
+      supabase
+        .from('disciplines')
+        .select('*, modules(name), lessons(count), materials(count), quiz_questions(count)')
+        .order('order_index'),
+      supabase.from('modules').select('id, name, publico').order('order_index')
+    ])
+    setDisciplines(discRes.data || [])
+    setModules(modRes.data || [])
     setLoading(false)
   }
 
   const resetForm = () => {
-    setForm({ name: '', description: '', icon: '📚', order_index: 0 })
+    setForm(EMPTY_FORM)
     setEditingId(null)
     setShowForm(false)
   }
@@ -36,7 +43,8 @@ export default function AdminDisciplines() {
       name: disc.name,
       description: disc.description || '',
       icon: disc.icon || '📚',
-      order_index: disc.order_index || 0
+      order_index: disc.order_index || 0,
+      module_id: disc.module_id || ''
     })
     setEditingId(disc.id)
     setShowForm(true)
@@ -46,27 +54,29 @@ export default function AdminDisciplines() {
     if (!form.name.trim()) return alert('Nome é obrigatório')
     setSaving(true)
 
+    const payload = { ...form, module_id: form.module_id || null }
+
     if (editingId) {
-      await supabase.from('disciplines').update(form).eq('id', editingId)
+      await supabase.from('disciplines').update(payload).eq('id', editingId)
     } else {
       const maxOrder = disciplines.length > 0
         ? Math.max(...disciplines.map(d => d.order_index || 0))
         : 0
       await supabase.from('disciplines').insert({
-        ...form,
+        ...payload,
         order_index: form.order_index || maxOrder + 1
       })
     }
 
     setSaving(false)
     resetForm()
-    fetchDisciplines()
+    fetchData()
   }
 
   const handleDelete = async (id, name) => {
     if (!confirm(`Tem certeza que deseja excluir "${name}"?\n\nTodas as aulas, materiais e quizzes desta disciplina serão removidos permanentemente.`)) return
     await supabase.from('disciplines').delete().eq('id', id)
-    fetchDisciplines()
+    fetchData()
   }
 
   if (loading) {
@@ -104,6 +114,21 @@ export default function AdminDisciplines() {
                 value={form.order_index}
                 onChange={e => setForm(f => ({ ...f, order_index: parseInt(e.target.value) || 0 }))}
               />
+            </div>
+            <div className="form-group form-full">
+              <label>Módulo</label>
+              <select
+                value={form.module_id}
+                onChange={e => setForm(f => ({ ...f, module_id: e.target.value }))}
+              >
+                <option value="">— Sem módulo —</option>
+                {modules.map(m => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+              {modules.length === 0 && (
+                <small>Nenhum módulo cadastrado ainda. Crie módulos em "Módulos".</small>
+              )}
             </div>
             <div className="form-group form-full">
               <label>Nome *</label>
@@ -148,7 +173,7 @@ export default function AdminDisciplines() {
             <span className="col-icon">{disc.icon || '📚'}</span>
             <div className="col-name">
               <strong>{disc.name}</strong>
-              <small>{disc.description}</small>
+              <small>{disc.modules?.name ? `📦 ${disc.modules.name}` : '⚠️ Sem módulo'}</small>
             </div>
             <span className="col-stats">{disc.lessons?.[0]?.count || 0}</span>
             <span className="col-stats">{disc.materials?.[0]?.count || 0}</span>

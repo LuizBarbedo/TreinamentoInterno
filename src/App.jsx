@@ -10,6 +10,7 @@ import Disciplines from './pages/Disciplines'
 import DisciplineDetail from './pages/DisciplineDetail'
 import Quiz from './pages/Quiz'
 import Conquistas from './pages/Conquistas'
+import AdminModules from './pages/admin/AdminModules'
 import AdminDisciplines from './pages/admin/AdminDisciplines'
 import AdminDisciplineEdit from './pages/admin/AdminDisciplineEdit'
 import AdminReports from './pages/admin/AdminReports'
@@ -67,6 +68,9 @@ function App() {
             <Route path="/forum/:postId" element={<ForumPost />} />
 
             {/* Admin Routes */}
+            <Route path="/admin/modulos" element={
+              <AdminRoute><AdminModules /></AdminRoute>
+            } />
             <Route path="/admin/disciplinas" element={
               <AdminRoute><AdminDisciplines /></AdminRoute>
             } />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus } from 'react-icons/fi'
+import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus, FiGrid } from 'react-icons/fi'
 import { HomeIcon, BookOpenIcon, MedalIcon, BarChartIcon, GraduationCapIcon } from './Icons'
 import './Layout.css'
 
@@ -72,8 +72,11 @@ export default function Layout() {
             <>
               <div className="nav-divider" />
               <span className="nav-section-label">Admin</span>
+              <NavLink to="/admin/modulos" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
+                <FiGrid /> <span>Módulos</span>
+              </NavLink>
               <NavLink to="/admin/disciplinas" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
-                <FiSettings /> <span>Gerenciar</span>
+                <FiSettings /> <span>Disciplinas</span>
               </NavLink>
               <NavLink to="/admin/relatorios" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
                 <BarChartIcon size={20} /> <span>Relatórios</span>
