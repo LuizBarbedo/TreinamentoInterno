@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
-import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload } from 'react-icons/fi'
+import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2 } from 'react-icons/fi'
 import './DisciplineDetail.css'
 
 function getEmbedUrl(url) {
@@ -27,6 +27,15 @@ export default function DisciplineDetail() {
   const [materials, setMaterials] = useState([])
   const [completedLessons, setCompletedLessons] = useState(new Set())
   const [activeTab, setActiveTab] = useState('aulas')
+
+  // Atividade Prática state
+  const [practicalActivity, setPracticalActivity] = useState(null)
+  const [practicalSubmission, setPracticalSubmission] = useState(null)
+  const [submissionMode, setSubmissionMode] = useState('text') // 'text' | 'file'
+  const [submissionText, setSubmissionText] = useState('')
+  const [submissionFile, setSubmissionFile] = useState(null)
+  const [submittingActivity, setSubmittingActivity] = useState(false)
+  const submissionFileRef = useRef(null)
   const [activeLesson, setActiveLesson] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -91,7 +100,7 @@ export default function DisciplineDetail() {
   }, [allLessonsCompleted, hasFinalQuiz])
 
   const fetchData = async () => {
-    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, finalQuizRes, lessonQuizzesRes] = await Promise.all([
+    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, finalQuizRes, lessonQuizzesRes, activityRes] = await Promise.all([
       supabase.from('disciplines').select('*').eq('id', id).single(),
       supabase.from('lessons').select('*').eq('discipline_id', id).order('order_index'),
       supabase.from('materials').select('*').eq('discipline_id', id).order('created_at'),
@@ -100,6 +109,7 @@ export default function DisciplineDetail() {
       supabase.from('quiz_results').select('discipline_id, score, correct_answers, total_questions').eq('user_id', user.id).eq('discipline_id', id).single(),
       supabase.from('quiz_questions').select('id').eq('discipline_id', id).is('lesson_id', null).limit(1),
       supabase.from('quiz_questions').select('lesson_id').eq('discipline_id', id).not('lesson_id', 'is', null),
+      supabase.from('practical_activities').select('*').eq('discipline_id', id).maybeSingle(),
     ])
 
     setHasFinalQuiz((finalQuizRes.data || []).length > 0)
@@ -108,6 +118,23 @@ export default function DisciplineDetail() {
     if (discRes.data) setDiscipline(discRes.data)
     if (lessonsRes.data) setLessons(lessonsRes.data)
     if (materialsRes.data) setMaterials(materialsRes.data)
+
+    // Atividade Prática + entrega do aluno
+    const activity = activityRes.data || null
+    setPracticalActivity(activity)
+    if (activity) {
+      const { data: subData } = await supabase
+        .from('practical_submissions')
+        .select('*')
+        .eq('activity_id', activity.id)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (subData) {
+        setPracticalSubmission(subData)
+        setSubmissionMode(subData.submission_type || 'text')
+        setSubmissionText(subData.content_text || '')
+      }
+    }
 
     const completedIds = new Set((progressRes.data || []).map(p => p.lesson_id))
     setCompletedLessons(completedIds)
@@ -329,6 +356,116 @@ export default function DisciplineDetail() {
     startLessonQuiz(lessonId)
   }
 
+  // ═══════════════════════════════════════
+  // ATIVIDADE PRÁTICA — entrega do aluno
+  // ═══════════════════════════════════════
+  const DOCX_TYPES = [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ]
+
+  const handleSubmissionFileSelect = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const isDocx = DOCX_TYPES.includes(file.type) || /\.docx?$/i.test(file.name)
+    if (!isDocx) {
+      alert('Arquivo inválido. A entrega por arquivo deve ser em Word (.doc ou .docx).')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      alert('Arquivo muito grande. O limite é 50MB.')
+      e.target.value = ''
+      return
+    }
+    setSubmissionFile(file)
+  }
+
+  const uploadSubmissionFile = async (file) => {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${id}/${user.id}_${Date.now()}.${fileExt}`
+    const { error } = await supabase.storage
+      .from('practical-submissions')
+      .upload(fileName, file, { cacheControl: '3600', upsert: true })
+    if (error) throw error
+    const { data: publicUrlData } = supabase.storage
+      .from('practical-submissions')
+      .getPublicUrl(fileName)
+    return { url: publicUrlData.publicUrl, filePath: fileName }
+  }
+
+  const submitPracticalActivity = async () => {
+    if (!practicalActivity) return
+
+    if (submissionMode === 'text') {
+      if (!submissionText.trim()) {
+        return alert('Escreva sua resposta antes de enviar.')
+      }
+    } else {
+      if (!submissionFile && !practicalSubmission?.file_path) {
+        return alert('Selecione o arquivo .docx da sua atividade antes de enviar.')
+      }
+    }
+
+    setSubmittingActivity(true)
+    try {
+      let submissionData = {
+        activity_id: practicalActivity.id,
+        discipline_id: id,
+        user_id: user.id,
+        submission_type: submissionMode,
+        submitted_at: new Date().toISOString(),
+        // ao reenviar, volta para "pendente" para o admin reavaliar
+        status: 'pendente',
+        grade: null,
+        feedback: null,
+        graded_at: null,
+      }
+
+      if (submissionMode === 'text') {
+        submissionData.content_text = submissionText.trim()
+        submissionData.file_path = null
+        submissionData.file_url = null
+        submissionData.file_name = null
+      } else {
+        if (submissionFile) {
+          // remove arquivo anterior, se houver
+          if (practicalSubmission?.file_path) {
+            await supabase.storage.from('practical-submissions').remove([practicalSubmission.file_path])
+          }
+          const { url, filePath } = await uploadSubmissionFile(submissionFile)
+          submissionData.file_path = filePath
+          submissionData.file_url = url
+          submissionData.file_name = submissionFile.name
+        } else {
+          // manteve o arquivo já enviado anteriormente
+          submissionData.file_path = practicalSubmission.file_path
+          submissionData.file_url = practicalSubmission.file_url
+          submissionData.file_name = practicalSubmission.file_name
+        }
+        submissionData.content_text = null
+      }
+
+      const { data, error } = await supabase
+        .from('practical_submissions')
+        .upsert(submissionData, { onConflict: 'user_id,activity_id' })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setPracticalSubmission(data)
+      setSubmissionFile(null)
+      if (submissionFileRef.current) submissionFileRef.current.value = ''
+      alert('Atividade entregue com sucesso!')
+    } catch (err) {
+      console.error('Erro ao enviar atividade:', err)
+      alert('Erro ao enviar a atividade. Tente novamente.')
+    }
+    setSubmittingActivity(false)
+  }
+
   if (loading) {
     return <div className="loading-screen"><div className="spinner"></div></div>
   }
@@ -396,6 +533,15 @@ export default function DisciplineDetail() {
         >
           <FiFileText /> Materiais ({materials.length})
         </button>
+        {practicalActivity && (
+          <button
+            className={`tab ${activeTab === 'atividade' ? 'active' : ''}`}
+            onClick={() => setActiveTab('atividade')}
+          >
+            <FiClipboard /> Atividade Prática
+            {practicalSubmission && <FiCheck className="tab-done-check" />}
+          </button>
+        )}
 
         {hasFinalQuiz === false && allLessonsCompleted ? (
           <span className="tab tab-quiz tab-quiz-unlocked" title="Disciplina concluída - sem quiz final">
@@ -647,6 +793,192 @@ export default function DisciplineDetail() {
               <p>Nenhum material disponível para esta disciplina.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'atividade' && practicalActivity && (
+        <div className="practical-activity">
+          {/* Enunciado / conteúdo da atividade */}
+          <div className="pa-card pa-content-card">
+            <div className="pa-content-header">
+              <span className="pa-icon"><FiClipboard /></span>
+              <div>
+                <h2>{practicalActivity.title || 'Atividade Prática'}</h2>
+                <p className="pa-subtitle">Leia as instruções, realize a atividade e faça a sua entrega abaixo.</p>
+              </div>
+            </div>
+
+            {practicalActivity.instructions && (
+              <div className="pa-instructions">
+                {practicalActivity.instructions.split('\n').map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
+            )}
+
+            {practicalActivity.file_url && (
+              <div className="pa-file-actions">
+                <a
+                  href={practicalActivity.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pa-btn pa-btn-view"
+                >
+                  <FiExternalLink /> Visualizar PDF
+                </a>
+                <a
+                  href={practicalActivity.file_url}
+                  download={practicalActivity.title || 'atividade-pratica.pdf'}
+                  className="pa-btn pa-btn-download"
+                >
+                  <FiDownload /> Baixar PDF
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Instruções de entrega */}
+          <div className="pa-card pa-howto-card">
+            <h3>📤 Como entregar a sua atividade</h3>
+            <p>Você pode entregar a atividade de uma das duas formas abaixo. Escolha a que preferir:</p>
+            <div className="pa-howto-options">
+              <div className="pa-howto-option">
+                <span className="pa-howto-num"><FiEdit3 /></span>
+                <div>
+                  <strong>Escrever na plataforma</strong>
+                  <p>Digite a sua resposta diretamente no campo de texto. Ideal para respostas mais curtas ou objetivas.</p>
+                </div>
+              </div>
+              <div className="pa-howto-option">
+                <span className="pa-howto-num"><FiUpload /></span>
+                <div>
+                  <strong>Enviar um arquivo</strong>
+                  <p>Faça o upload do seu trabalho. <strong>O arquivo deve estar em formato Word (.docx)</strong> — outros formatos não serão aceitos.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Devolutiva do admin (se avaliada) */}
+          {practicalSubmission?.status === 'avaliada' && (
+            <div className="pa-card pa-feedback-card">
+              <div className="pa-feedback-header">
+                <FiCheckCircle /> Atividade avaliada
+                {practicalSubmission.grade && (
+                  <span className="pa-grade">Nota: {practicalSubmission.grade}</span>
+                )}
+              </div>
+              {practicalSubmission.feedback && (
+                <div className="pa-feedback-text">
+                  <strong>Devolutiva do instrutor:</strong>
+                  <p>{practicalSubmission.feedback}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Área de entrega */}
+          <div className="pa-card pa-submit-card">
+            <div className="pa-submit-header">
+              <h3>✍️ Sua Entrega</h3>
+              {practicalSubmission && (
+                <span className={`pa-status pa-status-${practicalSubmission.status}`}>
+                  {practicalSubmission.status === 'avaliada' ? 'Avaliada' : 'Entregue — aguardando avaliação'}
+                </span>
+              )}
+            </div>
+
+            {practicalSubmission && (
+              <p className="pa-submitted-note">
+                Você já entregou esta atividade em{' '}
+                {new Date(practicalSubmission.submitted_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+                Você pode reenviar a qualquer momento — a entrega anterior será substituída.
+              </p>
+            )}
+
+            {/* Seletor de modo de entrega */}
+            <div className="pa-mode-toggle">
+              <button
+                className={`pa-mode-btn ${submissionMode === 'text' ? 'active' : ''}`}
+                onClick={() => setSubmissionMode('text')}
+              >
+                <FiEdit3 /> Escrever resposta
+              </button>
+              <button
+                className={`pa-mode-btn ${submissionMode === 'file' ? 'active' : ''}`}
+                onClick={() => setSubmissionMode('file')}
+              >
+                <FiUpload /> Enviar arquivo (.docx)
+              </button>
+            </div>
+
+            {submissionMode === 'text' ? (
+              <textarea
+                className="pa-textarea"
+                value={submissionText}
+                onChange={e => setSubmissionText(e.target.value)}
+                placeholder="Escreva aqui a sua resposta para a atividade..."
+                rows={10}
+              />
+            ) : (
+              <div className="pa-file-upload">
+                <input
+                  ref={submissionFileRef}
+                  type="file"
+                  accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={handleSubmissionFileSelect}
+                  className="pa-file-input-hidden"
+                  id="pa-submission-file"
+                />
+                <label htmlFor="pa-submission-file" className="pa-file-label">
+                  <FiUpload />
+                  <span>
+                    {submissionFile
+                      ? submissionFile.name
+                      : 'Clique para selecionar o seu arquivo Word (.docx)'}
+                  </span>
+                </label>
+
+                {submissionFile && (
+                  <div className="pa-file-selected">
+                    <FiFile />
+                    <span>{submissionFile.name}</span>
+                    <span className="pa-file-size">({(submissionFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                    <button
+                      type="button"
+                      className="pa-file-remove"
+                      onClick={() => {
+                        setSubmissionFile(null)
+                        if (submissionFileRef.current) submissionFileRef.current.value = ''
+                      }}
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                )}
+
+                {!submissionFile && practicalSubmission?.file_path && (
+                  <div className="pa-file-current">
+                    <FiFile /> Arquivo enviado:{' '}
+                    <a href={practicalSubmission.file_url} target="_blank" rel="noopener noreferrer" download={practicalSubmission.file_name}>
+                      {practicalSubmission.file_name || 'documento.docx'}
+                    </a>
+                    <small>Selecione um novo arquivo para substituir, ou clique em enviar para manter o atual.</small>
+                  </div>
+                )}
+
+                <p className="pa-file-hint">Apenas arquivos Word (.docx). Tamanho máximo: 50MB.</p>
+              </div>
+            )}
+
+            <button
+              className="pa-submit-btn"
+              onClick={submitPracticalActivity}
+              disabled={submittingActivity}
+            >
+              <FiSend /> {submittingActivity ? 'Enviando...' : practicalSubmission ? 'Reenviar Atividade' : 'Entregar Atividade'}
+            </button>
+          </div>
         </div>
       )}
 

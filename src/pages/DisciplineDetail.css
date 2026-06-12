@@ -1003,3 +1003,400 @@
 .artigo-panel .panel-body {
   min-height: 120px;
 }
+
+/* ═══════════════════════════════════════════════
+   ATIVIDADE PRÁTICA (aba do aluno)
+   ═══════════════════════════════════════════════ */
+.tab-done-check {
+  color: #2e9e5b;
+  margin-left: 6px;
+}
+
+.practical-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pa-card {
+  background: #fff;
+  border: 1px solid #e6edf0;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(15, 94, 120, 0.05);
+}
+
+.pa-content-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.pa-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3aa7af, #0f5e78);
+  color: #fff;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.pa-content-header h2 {
+  margin: 0 0 4px;
+  color: #0f5e78;
+  font-size: 1.4rem;
+}
+
+.pa-subtitle {
+  margin: 0;
+  color: #6b7c85;
+  font-size: 0.92rem;
+}
+
+.pa-instructions {
+  color: #334;
+  line-height: 1.6;
+  background: #f6fafb;
+  border-left: 3px solid #3aa7af;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+
+.pa-instructions p {
+  margin: 0 0 8px;
+}
+
+.pa-instructions p:last-child {
+  margin-bottom: 0;
+}
+
+.pa-file-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.pa-btn-view {
+  background: #e8f4f5;
+  color: #0f5e78;
+}
+
+.pa-btn-view:hover {
+  background: #d5ebed;
+}
+
+.pa-btn-download {
+  background: linear-gradient(135deg, #3aa7af, #0f5e78);
+  color: #fff;
+}
+
+.pa-btn-download:hover {
+  opacity: 0.92;
+}
+
+/* Como entregar */
+.pa-howto-card h3 {
+  margin: 0 0 8px;
+  color: #0f5e78;
+}
+
+.pa-howto-card > p {
+  margin: 0 0 16px;
+  color: #6b7c85;
+}
+
+.pa-howto-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pa-howto-option {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid #e6edf0;
+  border-radius: 12px;
+  background: #fbfdfd;
+}
+
+.pa-howto-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #e8f4f5;
+  color: #0f5e78;
+  flex-shrink: 0;
+}
+
+.pa-howto-option strong {
+  display: block;
+  color: #0f5e78;
+  margin-bottom: 4px;
+}
+
+.pa-howto-option p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #6b7c85;
+  line-height: 1.5;
+}
+
+/* Devolutiva */
+.pa-feedback-card {
+  border-left: 4px solid #2e9e5b;
+}
+
+.pa-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2e9e5b;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+.pa-grade {
+  margin-left: auto;
+  background: #2e9e5b;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.pa-feedback-text strong {
+  color: #0f5e78;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pa-feedback-text p {
+  margin: 0;
+  color: #334;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Entrega */
+.pa-submit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pa-submit-header h3 {
+  margin: 0;
+  color: #0f5e78;
+}
+
+.pa-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.pa-status-pendente {
+  background: #fff4e0;
+  color: #b87503;
+}
+
+.pa-status-avaliada {
+  background: #e3f5ea;
+  color: #2e9e5b;
+}
+
+.pa-submitted-note {
+  font-size: 0.88rem;
+  color: #6b7c85;
+  background: #f6fafb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 0 16px;
+}
+
+.pa-mode-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pa-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1.5px solid #d6e3e6;
+  border-radius: 10px;
+  background: #fff;
+  color: #6b7c85;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pa-mode-btn:hover {
+  border-color: #3aa7af;
+  color: #0f5e78;
+}
+
+.pa-mode-btn.active {
+  border-color: #3aa7af;
+  background: #e8f4f5;
+  color: #0f5e78;
+}
+
+.pa-textarea {
+  width: 100%;
+  border: 1.5px solid #d6e3e6;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.pa-textarea:focus {
+  outline: none;
+  border-color: #3aa7af;
+}
+
+.pa-file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pa-file-input-hidden {
+  display: none;
+}
+
+.pa-file-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 26px;
+  border: 2px dashed #c3d6da;
+  border-radius: 12px;
+  background: #fbfdfd;
+  color: #0f5e78;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.pa-file-label:hover {
+  border-color: #3aa7af;
+  background: #f2fafa;
+}
+
+.pa-file-selected,
+.pa-file-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #f6fafb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334;
+}
+
+.pa-file-current {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pa-file-current a {
+  color: #0f5e78;
+  font-weight: 600;
+}
+
+.pa-file-current small,
+.pa-file-hint {
+  font-size: 0.8rem;
+  color: #8a99a0;
+}
+
+.pa-file-size {
+  color: #8a99a0;
+}
+
+.pa-file-remove {
+  margin-left: auto;
+  background: #fde8e8;
+  color: #c0392b;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pa-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3aa7af, #0f5e78);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.pa-submit-btn:hover {
+  opacity: 0.92;
+}
+
+.pa-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .pa-howto-options {
+    grid-template-columns: 1fr;
+  }
+}

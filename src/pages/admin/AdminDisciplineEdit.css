@@ -650,3 +650,117 @@
   font-size: 0.8rem;
   font-style: italic;
 }
+
+/* ═══════════════════════════════════════════════
+   ATIVIDADE PRÁTICA (admin)
+   ═══════════════════════════════════════════════ */
+.admin-hint {
+  font-size: 0.88rem;
+  color: #6b7c85;
+  background: #f6fafb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.admin-submissions {
+  margin-top: 28px;
+}
+
+.submission-card {
+  border: 1px solid #e6edf0;
+  border-radius: 12px;
+  background: #fff;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.submission-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #eef3f4;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.submission-student strong {
+  display: block;
+  color: #0f5e78;
+  font-size: 1rem;
+}
+
+.submission-student small {
+  color: #8a99a0;
+  font-size: 0.82rem;
+}
+
+.submission-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.submission-meta small {
+  color: #8a99a0;
+  font-size: 0.8rem;
+}
+
+.pa-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.pa-status-pendente {
+  background: #fff4e0;
+  color: #b87503;
+}
+
+.pa-status-avaliada {
+  background: #e3f5ea;
+  color: #2e9e5b;
+}
+
+.submission-body {
+  margin-bottom: 16px;
+}
+
+.submission-file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #e8f4f5;
+  color: #0f5e78;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.submission-file-link:hover {
+  background: #d5ebed;
+}
+
+.submission-text {
+  background: #f6fafb;
+  border-left: 3px solid #3aa7af;
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: #334;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+}
+
+.submission-grade {
+  background: #fbfdfd;
+  border-top: 1px dashed #e0e9eb;
+  padding-top: 14px;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiUpload, FiFile } from 'react-icons/fi'
+import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiUpload, FiFile, FiClipboard, FiDownload, FiExternalLink, FiMessageSquare } from 'react-icons/fi'
 import './AdminDisciplineEdit.css'
 
 export default function AdminDisciplineEdit() {
@@ -38,16 +38,27 @@ export default function AdminDisciplineEdit() {
   const [editingQuestionId, setEditingQuestionId] = useState(null)
   const [showQuizForm, setShowQuizForm] = useState(false)
 
+  // Atividade Prática
+  const [activity, setActivity] = useState(null)
+  const [activityForm, setActivityForm] = useState({ title: 'Atividade Prática', instructions: '' })
+  const [activityFile, setActivityFile] = useState(null)
+  const [uploadingActivity, setUploadingActivity] = useState(false)
+  const activityFileRef = useRef(null)
+  const [submissions, setSubmissions] = useState([])
+  const [gradeDrafts, setGradeDrafts] = useState({}) // { [submissionId]: { grade, feedback } }
+  const [savingGradeId, setSavingGradeId] = useState(null)
+
   useEffect(() => {
     fetchAll()
   }, [id])
 
   const fetchAll = async () => {
-    const [discRes, lessRes, matRes, quizRes] = await Promise.all([
+    const [discRes, lessRes, matRes, quizRes, activityRes] = await Promise.all([
       supabase.from('disciplines').select('*').eq('id', id).single(),
       supabase.from('lessons').select('*').eq('discipline_id', id).order('order_index'),
       supabase.from('materials').select('*').eq('discipline_id', id).order('created_at'),
-      supabase.from('quiz_questions').select('*').eq('discipline_id', id).order('order_index')
+      supabase.from('quiz_questions').select('*').eq('discipline_id', id).order('order_index'),
+      supabase.from('practical_activities').select('*').eq('discipline_id', id).maybeSingle()
     ])
 
     if (discRes.data) {
@@ -62,7 +73,25 @@ export default function AdminDisciplineEdit() {
     setLessons(lessRes.data || [])
     setMaterials(matRes.data || [])
     setQuestions(quizRes.data || [])
+
+    const act = activityRes.data || null
+    setActivity(act)
+    if (act) {
+      setActivityForm({ title: act.title || 'Atividade Prática', instructions: act.instructions || '' })
+      fetchSubmissions()
+    }
+
     setLoading(false)
+  }
+
+  const fetchSubmissions = async () => {
+    const { data, error } = await supabase.rpc('get_practical_submissions', { p_discipline_id: id })
+    if (!error && data) {
+      setSubmissions(data)
+      const drafts = {}
+      data.forEach(s => { drafts[s.id] = { grade: s.grade || '', feedback: s.feedback || '' } })
+      setGradeDrafts(drafts)
+    }
   }
 
   // ═══════════════════════════════════════
@@ -351,6 +380,114 @@ export default function AdminDisciplineEdit() {
     })
   }
 
+  // ═══════════════════════════════════════
+  // ATIVIDADE PRÁTICA
+  // ═══════════════════════════════════════
+  const handleActivityFileSelect = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+      alert('O conteúdo da atividade deve ser um arquivo PDF.')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      alert('Arquivo muito grande. O limite é 50MB.')
+      e.target.value = ''
+      return
+    }
+    setActivityFile(file)
+  }
+
+  const uploadActivityFile = async (file) => {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+    const { error } = await supabase.storage
+      .from('practical-activities')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false })
+    if (error) throw error
+    const { data: publicUrlData } = supabase.storage
+      .from('practical-activities')
+      .getPublicUrl(fileName)
+    return { url: publicUrlData.publicUrl, filePath: fileName }
+  }
+
+  const saveActivity = async () => {
+    if (!activityForm.title.trim()) return alert('Título é obrigatório')
+    setSaving(true)
+    setUploadingActivity(!!activityFile)
+    try {
+      let activityData = {
+        discipline_id: id,
+        title: activityForm.title.trim(),
+        instructions: activityForm.instructions,
+        updated_at: new Date().toISOString()
+      }
+
+      if (activityFile) {
+        if (activity?.file_path) {
+          await supabase.storage.from('practical-activities').remove([activity.file_path])
+        }
+        const { url, filePath } = await uploadActivityFile(activityFile)
+        activityData.file_url = url
+        activityData.file_path = filePath
+      }
+
+      let saved
+      if (activity) {
+        const { data } = await supabase.from('practical_activities').update(activityData).eq('id', activity.id).select().single()
+        saved = data
+      } else {
+        const { data } = await supabase.from('practical_activities').insert(activityData).select().single()
+        saved = data
+      }
+
+      setActivity(saved)
+      setActivityFile(null)
+      if (activityFileRef.current) activityFileRef.current.value = ''
+      fetchSubmissions()
+      alert('Atividade prática salva com sucesso!')
+    } catch (err) {
+      console.error('Erro ao salvar atividade:', err)
+      alert('Erro ao salvar a atividade. Tente novamente.')
+    }
+    setSaving(false)
+    setUploadingActivity(false)
+  }
+
+  const deleteActivity = async () => {
+    if (!activity) return
+    if (!confirm('Excluir a atividade prática desta disciplina?\n\nTodas as entregas dos alunos também serão removidas.')) return
+    if (activity.file_path) {
+      await supabase.storage.from('practical-activities').remove([activity.file_path])
+    }
+    await supabase.from('practical_activities').delete().eq('id', activity.id)
+    setActivity(null)
+    setSubmissions([])
+    setActivityForm({ title: 'Atividade Prática', instructions: '' })
+  }
+
+  const saveGrade = async (submission) => {
+    const draft = gradeDrafts[submission.id] || {}
+    setSavingGradeId(submission.id)
+    const { error } = await supabase
+      .from('practical_submissions')
+      .update({
+        grade: draft.grade?.trim() || null,
+        feedback: draft.feedback?.trim() || null,
+        status: 'avaliada',
+        graded_at: new Date().toISOString()
+      })
+      .eq('id', submission.id)
+    if (error) {
+      console.error('Erro ao salvar devolutiva:', error)
+      alert('Erro ao salvar a devolutiva. Tente novamente.')
+    } else {
+      await fetchSubmissions()
+    }
+    setSavingGradeId(null)
+  }
+
   // Separate questions by type
   const generalQuestions = questions.filter(q => !q.lesson_id)
   const lessonQuestionsGrouped = lessons.map(l => ({
@@ -384,6 +521,7 @@ export default function AdminDisciplineEdit() {
           { key: 'aulas', label: `🎬 Aulas (${lessons.length})` },
           { key: 'materiais', label: `📎 Materiais (${materials.length})` },
           { key: 'quiz', label: `📝 Quiz (${questions.length})` },
+          { key: 'atividade', label: `📋 Atividade Prática${activity ? ` (${submissions.length})` : ''}` },
         ].map(tab => (
           <button
             key={tab.key}
@@ -881,6 +1019,161 @@ export default function AdminDisciplineEdit() {
                 ))}
               </ul>
               <p>Adicione questões de quiz para essas aulas clicando em "Nova Questão".</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══ ATIVIDADE PRÁTICA TAB ═══ */}
+      {activeTab === 'atividade' && (
+        <div className="admin-section">
+          <div className="admin-form-card">
+            <div className="section-toolbar" style={{ paddingTop: 0 }}>
+              <h3><FiClipboard /> Configurar Atividade Prática</h3>
+              {activity && (
+                <button className="btn-icon btn-delete" onClick={deleteActivity} title="Excluir atividade">
+                  <FiTrash2 />
+                </button>
+              )}
+            </div>
+            <p className="admin-hint">
+              Cada disciplina possui uma única Atividade Prática. Suba o conteúdo em PDF e escreva as instruções.
+              O aluno fará a entrega escrevendo direto na plataforma ou enviando um arquivo Word (.docx).
+            </p>
+
+            <div className="form-grid">
+              <div className="form-group form-full">
+                <label>Título</label>
+                <input
+                  value={activityForm.title}
+                  onChange={e => setActivityForm(f => ({ ...f, title: e.target.value }))}
+                  placeholder="Ex: Atividade Prática — Estudo de Caso"
+                />
+              </div>
+              <div className="form-group form-full">
+                <label>Instruções / Enunciado da atividade</label>
+                <textarea
+                  value={activityForm.instructions}
+                  onChange={e => setActivityForm(f => ({ ...f, instructions: e.target.value }))}
+                  rows={6}
+                  placeholder="Descreva o que o aluno deve fazer na atividade..."
+                />
+              </div>
+              <div className="form-group form-full">
+                <label>Conteúdo da atividade (PDF)</label>
+                <div className="file-upload-area">
+                  <input
+                    ref={activityFileRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={handleActivityFileSelect}
+                    className="file-input-hidden"
+                    id="activity-file-input"
+                  />
+                  <label htmlFor="activity-file-input" className="file-upload-label">
+                    <FiUpload />
+                    <span>{activityFile ? activityFile.name : 'Clique para selecionar o PDF da atividade'}</span>
+                  </label>
+                  {activityFile && (
+                    <div className="file-selected-info">
+                      <FiFile />
+                      <span>{activityFile.name}</span>
+                      <span className="file-size">({(activityFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                      <button type="button" className="btn-remove-file" onClick={() => {
+                        setActivityFile(null)
+                        if (activityFileRef.current) activityFileRef.current.value = ''
+                      }}>
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  )}
+                  {activity?.file_url && !activityFile && (
+                    <div className="file-selected-info">
+                      <FiFile />
+                      <a href={activity.file_url} target="_blank" rel="noopener noreferrer">PDF atual enviado</a>
+                      <small className="file-edit-hint">Selecione um novo arquivo para substituir, ou deixe em branco para manter.</small>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="form-actions">
+              <button className="btn-primary" onClick={saveActivity} disabled={saving || uploadingActivity}>
+                <FiSave /> {uploadingActivity ? 'Enviando arquivo...' : saving ? 'Salvando...' : activity ? 'Salvar Alterações' : 'Criar Atividade'}
+              </button>
+            </div>
+          </div>
+
+          {/* Entregas dos alunos */}
+          {activity && (
+            <div className="admin-submissions">
+              <h3 className="quiz-section-title">
+                <FiMessageSquare /> Entregas dos Alunos ({submissions.length})
+              </h3>
+
+              {submissions.length === 0 ? (
+                <div className="list-empty">Nenhuma entrega recebida ainda.</div>
+              ) : (
+                <div className="admin-list">
+                  {submissions.map(sub => (
+                    <div key={sub.id} className="submission-card">
+                      <div className="submission-head">
+                        <div className="submission-student">
+                          <strong>{sub.full_name}</strong>
+                          <small>{sub.email}</small>
+                        </div>
+                        <div className="submission-meta">
+                          <span className={`pa-status pa-status-${sub.status}`}>
+                            {sub.status === 'avaliada' ? 'Avaliada' : 'Pendente'}
+                          </span>
+                          <small>
+                            {new Date(sub.submitted_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </small>
+                        </div>
+                      </div>
+
+                      {/* Conteúdo da entrega */}
+                      <div className="submission-body">
+                        {sub.submission_type === 'file' ? (
+                          <a href={sub.file_url} target="_blank" rel="noopener noreferrer" download={sub.file_name} className="submission-file-link">
+                            <FiDownload /> Baixar arquivo: {sub.file_name || 'documento.docx'}
+                          </a>
+                        ) : (
+                          <div className="submission-text">{sub.content_text}</div>
+                        )}
+                      </div>
+
+                      {/* Devolutiva do admin */}
+                      <div className="submission-grade">
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Nota / Conceito</label>
+                            <input
+                              value={gradeDrafts[sub.id]?.grade || ''}
+                              onChange={e => setGradeDrafts(d => ({ ...d, [sub.id]: { ...d[sub.id], grade: e.target.value } }))}
+                              placeholder="Ex: 9,0 ou Aprovado"
+                            />
+                          </div>
+                          <div className="form-group form-full">
+                            <label>Devolutiva / Comentário ao aluno</label>
+                            <textarea
+                              value={gradeDrafts[sub.id]?.feedback || ''}
+                              onChange={e => setGradeDrafts(d => ({ ...d, [sub.id]: { ...d[sub.id], feedback: e.target.value } }))}
+                              rows={2}
+                              placeholder="Escreva um comentário de devolutiva para o aluno (opcional)"
+                            />
+                          </div>
+                        </div>
+                        <div className="form-actions">
+                          <button className="btn-primary" onClick={() => saveGrade(sub)} disabled={savingGradeId === sub.id}>
+                            <FiCheck /> {savingGradeId === sub.id ? 'Salvando...' : 'Salvar Devolutiva'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
