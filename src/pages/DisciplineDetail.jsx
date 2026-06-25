@@ -7,6 +7,19 @@ import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
 import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2 } from 'react-icons/fi'
 import './DisciplineDetail.css'
 
+// Normaliza os arquivos de apoio da atividade (formato novo `files` ou legado file_url)
+function getActivityFiles(act) {
+  if (!act) return []
+  if (Array.isArray(act.files) && act.files.length > 0) return act.files
+  if (act.file_url) {
+    return [{
+      url: act.file_url,
+      name: (act.file_path && act.file_path.split('/').pop()) || 'atividade.pdf'
+    }]
+  }
+  return []
+}
+
 function getEmbedUrl(url) {
   if (!url) return null
   let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)
@@ -816,10 +829,11 @@ export default function DisciplineDetail() {
               </div>
             )}
 
-            {practicalActivity.file_url && (
-              <div className="pa-file-actions">
+            {getActivityFiles(practicalActivity).map((file, i) => (
+              <div className="pa-file-actions" key={file.url || i}>
+                <span className="pa-file-name"><FiFile /> {file.name || `Arquivo ${i + 1}`}</span>
                 <a
-                  href={practicalActivity.file_url}
+                  href={file.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pa-btn pa-btn-view"
@@ -827,14 +841,14 @@ export default function DisciplineDetail() {
                   <FiExternalLink /> Visualizar PDF
                 </a>
                 <a
-                  href={practicalActivity.file_url}
-                  download={practicalActivity.title || 'atividade-pratica.pdf'}
+                  href={file.url}
+                  download={file.name || 'atividade-pratica.pdf'}
                   className="pa-btn pa-btn-download"
                 >
                   <FiDownload /> Baixar PDF
                 </a>
               </div>
-            )}
+            ))}
           </div>
 
           {/* Instruções de entrega */}

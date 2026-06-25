@@ -4,6 +4,21 @@ import { supabase } from '../../lib/supabase'
 import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiUpload, FiFile, FiClipboard, FiDownload, FiExternalLink, FiMessageSquare } from 'react-icons/fi'
 import './AdminDisciplineEdit.css'
 
+// Normaliza os arquivos de apoio de uma atividade para um array [{ path, url, name }].
+// Suporta o formato novo (coluna `files`) e o legado (file_path/file_url únicos).
+function getActivityFiles(act) {
+  if (!act) return []
+  if (Array.isArray(act.files) && act.files.length > 0) return act.files
+  if (act.file_url) {
+    return [{
+      path: act.file_path || null,
+      url: act.file_url,
+      name: (act.file_path && act.file_path.split('/').pop()) || 'atividade.pdf'
+    }]
+  }
+  return []
+}
+
 export default function AdminDisciplineEdit() {
   const { id } = useParams()
   const [discipline, setDiscipline] = useState(null)
@@ -41,7 +56,8 @@ export default function AdminDisciplineEdit() {
   // Atividade Prática
   const [activity, setActivity] = useState(null)
   const [activityForm, setActivityForm] = useState({ title: 'Atividade Prática', instructions: '' })
-  const [activityFile, setActivityFile] = useState(null)
+  const [activityFiles, setActivityFiles] = useState([]) // novos arquivos a enviar (File[])
+  const [existingFiles, setExistingFiles] = useState([]) // arquivos já salvos mantidos [{ path, url, name }]
   const [uploadingActivity, setUploadingActivity] = useState(false)
   const activityFileRef = useRef(null)
   const [submissions, setSubmissions] = useState([])
@@ -76,6 +92,9 @@ export default function AdminDisciplineEdit() {
 
     const act = activityRes.data || null
     setActivity(act)
+    setExistingFiles(getActivityFiles(act))
+    setActivityFiles([])
+    if (activityFileRef.current) activityFileRef.current.value = ''
     if (act) {
       setActivityForm({ title: act.title || 'Atividade Prática', instructions: act.instructions || '' })
       fetchSubmissions()
@@ -384,19 +403,32 @@ export default function AdminDisciplineEdit() {
   // ATIVIDADE PRÁTICA
   // ═══════════════════════════════════════
   const handleActivityFileSelect = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
-      alert('O conteúdo da atividade deve ser um arquivo PDF.')
-      e.target.value = ''
-      return
+    const picked = Array.from(e.target.files || [])
+    if (picked.length === 0) return
+    const valid = []
+    for (const file of picked) {
+      if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+        alert(`"${file.name}" não é um PDF e foi ignorado. O conteúdo da atividade deve ser um arquivo PDF.`)
+        continue
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        alert(`"${file.name}" é muito grande e foi ignorado. O limite é 50MB por arquivo.`)
+        continue
+      }
+      valid.push(file)
     }
-    if (file.size > 50 * 1024 * 1024) {
-      alert('Arquivo muito grande. O limite é 50MB.')
-      e.target.value = ''
-      return
+    if (valid.length > 0) {
+      setActivityFiles(prev => [...prev, ...valid])
     }
-    setActivityFile(file)
+    e.target.value = ''
+  }
+
+  const removePendingFile = (index) => {
+    setActivityFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const removeExistingFile = (path) => {
+    setExistingFiles(prev => prev.filter(f => f.path !== path))
   }
 
   const uploadActivityFile = async (file) => {
@@ -409,28 +441,39 @@ export default function AdminDisciplineEdit() {
     const { data: publicUrlData } = supabase.storage
       .from('practical-activities')
       .getPublicUrl(fileName)
-    return { url: publicUrlData.publicUrl, filePath: fileName }
+    return { url: publicUrlData.publicUrl, path: fileName, name: file.name }
   }
 
   const saveActivity = async () => {
     if (!activityForm.title.trim()) return alert('Título é obrigatório')
     setSaving(true)
-    setUploadingActivity(!!activityFile)
+    setUploadingActivity(activityFiles.length > 0)
     try {
-      let activityData = {
+      // Envia os novos arquivos
+      const uploaded = []
+      for (const file of activityFiles) {
+        uploaded.push(await uploadActivityFile(file))
+      }
+
+      // Remove do Storage os arquivos antigos que o admin descartou
+      const previousFiles = getActivityFiles(activity)
+      const keptPaths = new Set(existingFiles.map(f => f.path))
+      const removedPaths = previousFiles.map(f => f.path).filter(p => p && !keptPaths.has(p))
+      if (removedPaths.length > 0) {
+        await supabase.storage.from('practical-activities').remove(removedPaths)
+      }
+
+      const finalFiles = [...existingFiles, ...uploaded].map(f => ({ path: f.path, url: f.url, name: f.name }))
+
+      const activityData = {
         discipline_id: id,
         title: activityForm.title.trim(),
         instructions: activityForm.instructions,
+        files: finalFiles,
+        // mantém os campos legados apontando para o primeiro arquivo (compatibilidade)
+        file_url: finalFiles[0]?.url || null,
+        file_path: finalFiles[0]?.path || null,
         updated_at: new Date().toISOString()
-      }
-
-      if (activityFile) {
-        if (activity?.file_path) {
-          await supabase.storage.from('practical-activities').remove([activity.file_path])
-        }
-        const { url, filePath } = await uploadActivityFile(activityFile)
-        activityData.file_url = url
-        activityData.file_path = filePath
       }
 
       let saved
@@ -443,7 +486,8 @@ export default function AdminDisciplineEdit() {
       }
 
       setActivity(saved)
-      setActivityFile(null)
+      setExistingFiles(getActivityFiles(saved))
+      setActivityFiles([])
       if (activityFileRef.current) activityFileRef.current.value = ''
       fetchSubmissions()
       alert('Atividade prática salva com sucesso!')
@@ -458,12 +502,15 @@ export default function AdminDisciplineEdit() {
   const deleteActivity = async () => {
     if (!activity) return
     if (!confirm('Excluir a atividade prática desta disciplina?\n\nTodas as entregas dos alunos também serão removidas.')) return
-    if (activity.file_path) {
-      await supabase.storage.from('practical-activities').remove([activity.file_path])
+    const paths = getActivityFiles(activity).map(f => f.path).filter(Boolean)
+    if (paths.length > 0) {
+      await supabase.storage.from('practical-activities').remove(paths)
     }
     await supabase.from('practical_activities').delete().eq('id', activity.id)
     setActivity(null)
     setSubmissions([])
+    setExistingFiles([])
+    setActivityFiles([])
     setActivityForm({ title: 'Atividade Prática', instructions: '' })
   }
 
@@ -1060,40 +1107,46 @@ export default function AdminDisciplineEdit() {
                 />
               </div>
               <div className="form-group form-full">
-                <label>Conteúdo da atividade (PDF)</label>
+                <label>Conteúdo da atividade (PDF) — você pode enviar vários arquivos</label>
                 <div className="file-upload-area">
                   <input
                     ref={activityFileRef}
                     type="file"
                     accept=".pdf,application/pdf"
+                    multiple
                     onChange={handleActivityFileSelect}
                     className="file-input-hidden"
                     id="activity-file-input"
                   />
                   <label htmlFor="activity-file-input" className="file-upload-label">
                     <FiUpload />
-                    <span>{activityFile ? activityFile.name : 'Clique para selecionar o PDF da atividade'}</span>
+                    <span>Clique para selecionar um ou mais PDFs da atividade</span>
                   </label>
-                  {activityFile && (
-                    <div className="file-selected-info">
+
+                  {/* Arquivos já salvos (mantidos) */}
+                  {existingFiles.map((f) => (
+                    <div key={f.path || f.url} className="file-selected-info">
                       <FiFile />
-                      <span>{activityFile.name}</span>
-                      <span className="file-size">({(activityFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
-                      <button type="button" className="btn-remove-file" onClick={() => {
-                        setActivityFile(null)
-                        if (activityFileRef.current) activityFileRef.current.value = ''
-                      }}>
+                      <a href={f.url} target="_blank" rel="noopener noreferrer">{f.name || 'arquivo.pdf'}</a>
+                      <small className="file-edit-hint">Arquivo atual</small>
+                      <button type="button" className="btn-remove-file" title="Remover este arquivo" onClick={() => removeExistingFile(f.path)}>
                         <FiTrash2 />
                       </button>
                     </div>
-                  )}
-                  {activity?.file_url && !activityFile && (
-                    <div className="file-selected-info">
+                  ))}
+
+                  {/* Novos arquivos selecionados (ainda não enviados) */}
+                  {activityFiles.map((file, i) => (
+                    <div key={`${file.name}-${i}`} className="file-selected-info">
                       <FiFile />
-                      <a href={activity.file_url} target="_blank" rel="noopener noreferrer">PDF atual enviado</a>
-                      <small className="file-edit-hint">Selecione um novo arquivo para substituir, ou deixe em branco para manter.</small>
+                      <span>{file.name}</span>
+                      <span className="file-size">({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                      <small className="file-edit-hint">Novo</small>
+                      <button type="button" className="btn-remove-file" title="Remover" onClick={() => removePendingFile(i)}>
+                        <FiTrash2 />
+                      </button>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
