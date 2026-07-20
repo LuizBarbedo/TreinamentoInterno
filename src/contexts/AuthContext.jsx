@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRole, setUserRole] = useState('user') // 'admin' | 'user'
   const [publico, setPublico] = useState('geral') // 'geral' | 'estrategico_tatico' | 'gerencial_tecnico' | 'operacional'
+  const [fullAccess, setFullAccess] = useState(false) // libera todo o conteúdo sem travas (coordenação)
   const [mustResetPassword, setMustResetPassword] = useState(false)
 
   const configuredResetRedirect = import.meta.env.VITE_PASSWORD_RESET_REDIRECT_URL?.trim()
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
       setIsAdmin(false)
       setUserRole('user')
       setPublico('geral')
+      setFullAccess(false)
       setMustResetPassword(false)
       return
     }
@@ -37,23 +39,26 @@ export function AuthProvider({ children }) {
       setIsAdmin(true)
       setUserRole('admin')
       setPublico('geral')
+      setFullAccess(true)
       return
     }
     // Verifica na tabela user_roles
     try {
       const { data } = await supabase
         .from('user_roles')
-        .select('role, publico')
+        .select('role, publico, full_access')
         .eq('user_id', currentUser.id)
         .single()
       const role = data?.role || 'user'
       setIsAdmin(role === 'admin')
       setUserRole(role)
       setPublico(data?.publico || 'geral')
+      setFullAccess(Boolean(data?.full_access))
     } catch {
       setIsAdmin(false)
       setUserRole('user')
       setPublico('geral')
+      setFullAccess(false)
     }
   }
 
@@ -140,11 +145,12 @@ export function AuthProvider({ children }) {
     setIsAdmin(false)
     setUserRole('user')
     setPublico('geral')
+    setFullAccess(false)
     setMustResetPassword(false)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, userRole, publico, mustResetPassword, signIn, signUp, signOut, resetPassword, updatePassword }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, userRole, publico, fullAccess, mustResetPassword, signIn, signUp, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

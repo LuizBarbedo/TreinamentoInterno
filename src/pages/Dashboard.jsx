@@ -9,7 +9,7 @@ import { BooksStackIcon, TrendingUpIcon, MedalIcon, TrophyIcon } from '../compon
 import './Dashboard.css'
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, fullAccess } = useAuth()
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, badges: 0 })
   const [disciplines, setDisciplines] = useState([])
   const [completedDisciplines, setCompletedDisciplines] = useState(new Set())
@@ -103,7 +103,9 @@ export default function Dashboard() {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'
 
+  // Perfis com acesso total (coordenação) ignoram a ordem sequencial.
   const isDisciplineAccessible = (index) => {
+    if (fullAccess) return true
     if (index === 0) return true
     return completedDisciplines.has(disciplines[index - 1].id)
   }

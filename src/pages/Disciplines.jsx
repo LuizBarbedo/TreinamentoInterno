@@ -7,7 +7,7 @@ import { filterByPublico, PUBLICO_LABELS } from '../lib/publicos'
 import './Disciplines.css'
 
 export default function Disciplines() {
-  const { user, publico, isAdmin } = useAuth()
+  const { user, publico, isAdmin, fullAccess } = useAuth()
   const [modules, setModules] = useState([])
   const [disciplines, setDisciplines] = useState([])
   const [completedDisciplines, setCompletedDisciplines] = useState(new Set())
@@ -35,8 +35,9 @@ export default function Disciplines() {
     return <div className="loading-screen"><div className="spinner"></div></div>
   }
 
-  // O master vê todos os módulos; o funcionário vê os do seu público + os "geral".
-  const visibleModules = isAdmin ? modules : filterByPublico(modules, publico)
+  // O master e os perfis com acesso total veem todos os módulos;
+  // o funcionário vê os do seu público + os "geral".
+  const visibleModules = (isAdmin || fullAccess) ? modules : filterByPublico(modules, publico)
 
   return (
     <div className="disciplines-page">

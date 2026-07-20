@@ -9,7 +9,7 @@ import './Quiz.css'
 
 export default function Quiz() {
   const { id } = useParams()
-  const { user } = useAuth()
+  const { user, fullAccess } = useAuth()
   const [discipline, setDiscipline] = useState(null)
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
@@ -169,7 +169,8 @@ export default function Quiz() {
   }
 
   // Tela de bloqueio se o conteúdo não foi concluído
-  if (!contentCompleted) {
+  // (perfis com acesso total, como a coordenação, não são bloqueados)
+  if (!contentCompleted && !fullAccess) {
     const lessonsDone = totalLessons === 0 || completedLessonsCount >= totalLessons
     return (
       <div className="quiz-page">
