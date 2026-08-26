@@ -46,9 +46,29 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await supabase
         .from('user_roles')
-        .select('role, publico, full_access')
+        .select('role, publico, full_access, cpf')
         .eq('user_id', currentUser.id)
         .single()
+
+      // Autocadastro (/cadastro): no primeiro login o cpf/publico ainda não
+      // está em user_roles, mas foi guardado em user_metadata pelo signUp.
+      // Grava agora via RPC (a própria tabela não aceita insert direto do aluno).
+      const pendingCpf = currentUser.user_metadata?.cpf
+      const pendingPublico = currentUser.user_metadata?.publico
+      if (!data?.cpf && pendingCpf) {
+        const { error: completeError } = await supabase.rpc('complete_student_signup', {
+          p_cpf: pendingCpf,
+          p_publico: pendingPublico || 'geral',
+        })
+        if (!completeError) {
+          setIsAdmin(false)
+          setUserRole('user')
+          setPublico(pendingPublico || 'geral')
+          setFullAccess(false)
+          return
+        }
+      }
+
       const role = data?.role || 'user'
       setIsAdmin(role === 'admin')
       setUserRole(role)

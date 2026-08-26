@@ -68,6 +68,10 @@ export default function Login() {
           <p className="forgot-password">
             <Link to="/esqueci-senha" className="btn-link">Esqueci minha senha</Link>
           </p>
+
+          <p className="toggle-auth">
+            Ainda não tem conta? <Link to="/cadastro" className="btn-link">Cadastre-se</Link>
+          </p>
         </form>
       </div>
     </div>

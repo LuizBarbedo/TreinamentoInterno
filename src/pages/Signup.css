@@ -1,0 +1,33 @@
+.signup-card {
+  max-width: 460px;
+}
+
+.signup-modulo-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.signup-modulo-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.signup-modulo-option input[type='radio'] {
+  accent-color: #3aa7af;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.signup-modulo-option.selected {
+  border-color: #3aa7af;
+  background: #e0f7f5;
+}

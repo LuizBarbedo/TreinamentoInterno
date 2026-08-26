@@ -23,6 +23,7 @@ ORDER = [
     "migration_forum_usernames.sql",
     "migration_forum_admin_delete.sql",
     "migration_materials_upload.sql",
+    "migration_self_signup.sql",
 ]
 
 HEADER = """-- ============================================================
