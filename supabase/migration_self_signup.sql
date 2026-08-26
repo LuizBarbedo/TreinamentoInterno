@@ -2,8 +2,8 @@
 -- MIGRATION: Cadastro público de alunos (link de inscrição)
 -- ============================================================================
 -- Permite que o próprio aluno crie sua conta pela página /cadastro,
--- informando nome, e-mail, senha, CPF e o módulo (geral ou estratégico e
--- tático).
+-- informando nome, e-mail, senha, CPF e o módulo (estratégico, tático ou
+-- operacional).
 --
 -- Como funciona:
 -- 1. O front chama supabase.auth.signUp() passando cpf/publico dentro de
@@ -54,7 +54,7 @@ BEGIN
     RAISE EXCEPTION 'CPF inválido';
   END IF;
 
-  IF p_publico NOT IN ('geral', 'estrategico_tatico') THEN
+  IF p_publico NOT IN ('estrategico', 'tatico', 'operacional') THEN
     RAISE EXCEPTION 'Módulo inválido: %', p_publico;
   END IF;
 

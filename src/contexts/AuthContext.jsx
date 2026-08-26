@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRole, setUserRole] = useState('user') // 'admin' | 'user'
-  const [publico, setPublico] = useState('geral') // 'geral' | 'estrategico_tatico' | 'gerencial_tecnico' | 'operacional'
+  const [publico, setPublico] = useState('geral') // 'geral' (conteúdo aberto) | 'estrategico' | 'tatico' | 'operacional'
   const [fullAccess, setFullAccess] = useState(false) // libera todo o conteúdo sem travas (coordenação)
   const [mustResetPassword, setMustResetPassword] = useState(false)
 
@@ -58,12 +58,12 @@ export function AuthProvider({ children }) {
       if (!data?.cpf && pendingCpf) {
         const { error: completeError } = await supabase.rpc('complete_student_signup', {
           p_cpf: pendingCpf,
-          p_publico: pendingPublico || 'geral',
+          p_publico: pendingPublico || 'estrategico',
         })
         if (!completeError) {
           setIsAdmin(false)
           setUserRole('user')
-          setPublico(pendingPublico || 'geral')
+          setPublico(pendingPublico || 'estrategico')
           setFullAccess(false)
           return
         }

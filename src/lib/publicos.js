@@ -1,12 +1,21 @@
 // Públicos da plataforma (fixos). Cada funcionário pertence a um público e
 // enxerga o conteúdo do seu público + o conteúdo marcado como "geral".
-export const PUBLICOS = ['geral', 'estrategico_tatico', 'gerencial_tecnico', 'operacional']
+// 'geral' é usado apenas para marcar CONTEÚDO (módulo/disciplina) visível
+// para os 3 públicos abaixo — nenhuma pessoa é cadastrada como 'geral'.
+export const PUBLICOS = ['geral', 'estrategico', 'tatico', 'operacional']
 
 export const PUBLICO_LABELS = {
   geral: 'Geral',
-  estrategico_tatico: 'Estratégico e Tático',
-  gerencial_tecnico: 'Gerencial e Técnico',
+  estrategico: 'Estratégico',
+  tatico: 'Tático',
   operacional: 'Operacional',
+}
+
+// Descrição do público-alvo de cada nível (Quadro de Segmentação do Público-Alvo).
+export const PUBLICO_DESCRIPTIONS = {
+  estrategico: 'Superintendentes e Diretoria Executiva',
+  tatico: 'Gerentes, Coordenadores e Agentes de Contratação',
+  operacional: 'Técnicos, Analistas e Guarda Portuária',
 }
 
 // Opções prontas para selects no painel master ({ value, label }).

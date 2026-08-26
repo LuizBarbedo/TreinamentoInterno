@@ -567,17 +567,18 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ============================================================================
 -- Migração: Públicos (segmentação de conteúdo por público-alvo)
 -- ============================================================================
--- Substitui o antigo sistema de "níveis de acesso" (básico/inter/avançado).
 -- Cada funcionário pertence a UM público e enxerga o conteúdo do seu público
 -- + o conteúdo marcado como "geral".
 --
--- Públicos fixos:
---   geral              -> visível para todos
---   estrategico_tatico -> Estratégico e Tático
---   gerencial_tecnico  -> Gerencial e Técnico
---   operacional        -> Operacional
+-- Públicos das PESSOAS (3, conforme segmentação oficial do programa):
+--   estrategico -> Superintendentes e Diretoria Executiva
+--   tatico      -> Gerentes, Coordenadores, Agentes de Contratação
+--   operacional -> Técnicos, Analistas, Guarda Portuária
 --
--- Padrão: todos os usuários iniciam em 'geral'. O master pode alterar depois.
+-- 'geral' existe no enum apenas para marcar CONTEÚDO (módulo/disciplina)
+-- visível para os 3 públicos acima — nenhuma pessoa é cadastrada como 'geral'.
+--
+-- Padrão: todos os usuários iniciam em 'estrategico'. O master pode alterar depois.
 -- Pré-requisito: migration_admin_roles.sql (cria user_roles e is_admin()).
 -- ============================================================================
 
@@ -585,17 +586,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'publico_enum') THEN
-    CREATE TYPE publico_enum AS ENUM ('geral', 'estrategico_tatico', 'gerencial_tecnico', 'operacional');
+    CREATE TYPE publico_enum AS ENUM ('geral', 'estrategico', 'tatico', 'operacional');
   END IF;
 END$$;
 
--- 2. Coluna em user_roles (default geral)
+-- 2. Coluna em user_roles (default estrategico)
 ALTER TABLE user_roles
-  ADD COLUMN IF NOT EXISTS publico publico_enum NOT NULL DEFAULT 'geral';
+  ADD COLUMN IF NOT EXISTS publico publico_enum NOT NULL DEFAULT 'estrategico';
 
 -- 3. Garantir que todos os usuários existentes tenham linha em user_roles
 INSERT INTO user_roles (user_id, role, publico)
-SELECT u.id, 'user', 'geral'
+SELECT u.id, 'user', 'estrategico'
 FROM auth.users u
 LEFT JOIN user_roles r ON r.user_id = u.id
 WHERE r.user_id IS NULL
@@ -611,7 +612,7 @@ BEGIN
   FROM user_roles
   WHERE user_id = auth.uid();
 
-  RETURN COALESCE(p, 'geral');
+  RETURN COALESCE(p, 'estrategico');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -626,7 +627,7 @@ BEGIN
     RAISE EXCEPTION 'Acesso negado: apenas o usuário master pode alterar públicos';
   END IF;
 
-  IF p_publico NOT IN ('geral', 'estrategico_tatico', 'gerencial_tecnico', 'operacional') THEN
+  IF p_publico NOT IN ('geral', 'estrategico', 'tatico', 'operacional') THEN
     RAISE EXCEPTION 'Público inválido: %', p_publico;
   END IF;
 
@@ -663,7 +664,7 @@ BEGIN
     u.created_at,
     u.last_sign_in_at,
     COALESCE(r.role, 'user')::TEXT AS role,
-    COALESCE(r.publico::TEXT, 'geral') AS publico
+    COALESCE(r.publico::TEXT, 'estrategico') AS publico
   FROM auth.users u
   LEFT JOIN user_roles r ON r.user_id = u.id
   ORDER BY u.created_at DESC;
@@ -1286,8 +1287,8 @@ CREATE POLICY "Public can read materials files"
 -- MIGRATION: Cadastro público de alunos (link de inscrição)
 -- ============================================================================
 -- Permite que o próprio aluno crie sua conta pela página /cadastro,
--- informando nome, e-mail, senha, CPF e o módulo (geral ou estratégico e
--- tático).
+-- informando nome, e-mail, senha, CPF e o módulo (estratégico, tático ou
+-- operacional).
 --
 -- Como funciona:
 -- 1. O front chama supabase.auth.signUp() passando cpf/publico dentro de
@@ -1338,7 +1339,7 @@ BEGIN
     RAISE EXCEPTION 'CPF inválido';
   END IF;
 
-  IF p_publico NOT IN ('geral', 'estrategico_tatico') THEN
+  IF p_publico NOT IN ('estrategico', 'tatico', 'operacional') THEN
     RAISE EXCEPTION 'Módulo inválido: %', p_publico;
   END IF;
 

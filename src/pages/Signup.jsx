@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { formatCpf, isValidCpf, onlyDigits } from '../lib/cpf'
-import { PUBLICO_LABELS } from '../lib/publicos'
+import { PUBLICO_LABELS, PUBLICO_DESCRIPTIONS } from '../lib/publicos'
 import logoImg from '../assets/logo-capacita-portos-branco.png'
 import './Signup.css'
 
-// Módulos abertos para autocadastro (os demais públicos só são atribuídos
-// manualmente pelo painel master em /admin/usuarios).
-const MODULOS_DISPONIVEIS = ['geral', 'estrategico_tatico']
+// Os 3 públicos oficiais do programa, disponíveis para autocadastro.
+const MODULOS_DISPONIVEIS = ['estrategico', 'tatico', 'operacional']
 
 export default function Signup() {
   const [fullName, setFullName] = useState('')
@@ -16,7 +15,7 @@ export default function Signup() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [cpf, setCpf] = useState('')
-  const [publico, setPublico] = useState('geral')
+  const [publico, setPublico] = useState('estrategico')
   const [error, setError] = useState('')
   const [pendingConfirmation, setPendingConfirmation] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -213,7 +212,10 @@ export default function Signup() {
                     checked={publico === value}
                     onChange={() => setPublico(value)}
                   />
-                  {PUBLICO_LABELS[value]}
+                  <span className="signup-modulo-text">
+                    <span className="signup-modulo-title">{PUBLICO_LABELS[value]}</span>
+                    <span className="signup-modulo-description">{PUBLICO_DESCRIPTIONS[value]}</span>
+                  </span>
                 </label>
               ))}
             </div>
