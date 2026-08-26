@@ -107,6 +107,21 @@
   grid-column: span 1;
 }
 
+.discipline-module-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+}
+
+.discipline-module-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;

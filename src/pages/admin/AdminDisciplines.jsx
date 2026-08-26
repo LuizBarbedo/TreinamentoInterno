@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import './AdminDisciplines.css'
 
-const EMPTY_FORM = { name: '', description: '', icon: '📚', order_index: 0, module_id: '' }
+const EMPTY_FORM = { name: '', description: '', icon: '📚', order_index: 0, module_ids: [] }
 
 export default function AdminDisciplines() {
   const [disciplines, setDisciplines] = useState([])
@@ -23,7 +23,7 @@ export default function AdminDisciplines() {
     const [discRes, modRes] = await Promise.all([
       supabase
         .from('disciplines')
-        .select('*, modules(name), lessons(count), materials(count), quiz_questions(count)')
+        .select('*, module_disciplines(module_id, modules(name)), lessons(count), materials(count), quiz_questions(count)')
         .order('order_index'),
       supabase.from('modules').select('id, name, publico').order('order_index')
     ])
@@ -44,28 +44,48 @@ export default function AdminDisciplines() {
       description: disc.description || '',
       icon: disc.icon || '📚',
       order_index: disc.order_index || 0,
-      module_id: disc.module_id || ''
+      module_ids: (disc.module_disciplines || []).map(md => md.module_id)
     })
     setEditingId(disc.id)
     setShowForm(true)
+  }
+
+  const toggleModule = (moduleId) => {
+    setForm(f => ({
+      ...f,
+      module_ids: f.module_ids.includes(moduleId)
+        ? f.module_ids.filter(id => id !== moduleId)
+        : [...f.module_ids, moduleId]
+    }))
+  }
+
+  const syncModuleLinks = async (disciplineId) => {
+    await supabase.from('module_disciplines').delete().eq('discipline_id', disciplineId)
+    if (form.module_ids.length > 0) {
+      await supabase.from('module_disciplines').insert(
+        form.module_ids.map(moduleId => ({ module_id: moduleId, discipline_id: disciplineId }))
+      )
+    }
   }
 
   const handleSave = async () => {
     if (!form.name.trim()) return alert('Nome é obrigatório')
     setSaving(true)
 
-    const payload = { ...form, module_id: form.module_id || null }
+    const { module_ids, ...payload } = form
 
     if (editingId) {
       await supabase.from('disciplines').update(payload).eq('id', editingId)
+      await syncModuleLinks(editingId)
     } else {
       const maxOrder = disciplines.length > 0
         ? Math.max(...disciplines.map(d => d.order_index || 0))
         : 0
-      await supabase.from('disciplines').insert({
+      const { data } = await supabase.from('disciplines').insert({
         ...payload,
         order_index: form.order_index || maxOrder + 1
-      })
+      }).select('id').single()
+      if (data?.id) await syncModuleLinks(data.id)
     }
 
     setSaving(false)
@@ -116,16 +136,19 @@ export default function AdminDisciplines() {
               />
             </div>
             <div className="form-group form-full">
-              <label>Módulo</label>
-              <select
-                value={form.module_id}
-                onChange={e => setForm(f => ({ ...f, module_id: e.target.value }))}
-              >
-                <option value="">— Sem módulo —</option>
+              <label>Módulos</label>
+              <div className="discipline-module-checkboxes">
                 {modules.map(m => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
+                  <label key={m.id} className="discipline-module-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={form.module_ids.includes(m.id)}
+                      onChange={() => toggleModule(m.id)}
+                    />
+                    {m.name}
+                  </label>
                 ))}
-              </select>
+              </div>
               {modules.length === 0 && (
                 <small>Nenhum módulo cadastrado ainda. Crie módulos em "Módulos".</small>
               )}
@@ -173,7 +196,11 @@ export default function AdminDisciplines() {
             <span className="col-icon">{disc.icon || '📚'}</span>
             <div className="col-name">
               <strong>{disc.name}</strong>
-              <small>{disc.modules?.name ? `📦 ${disc.modules.name}` : '⚠️ Sem módulo'}</small>
+              <small>
+                {disc.module_disciplines?.length > 0
+                  ? `📦 ${disc.module_disciplines.map(md => md.modules?.name).filter(Boolean).join(', ')}`
+                  : '⚠️ Sem módulo'}
+              </small>
             </div>
             <span className="col-stats">{disc.lessons?.[0]?.count || 0}</span>
             <span className="col-stats">{disc.materials?.[0]?.count || 0}</span>

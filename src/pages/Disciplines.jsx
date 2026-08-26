@@ -20,7 +20,7 @@ export default function Disciplines() {
   const fetchData = async () => {
     const [modRes, discRes, progressRes] = await Promise.all([
       supabase.from('modules').select('*').order('order_index'),
-      supabase.from('disciplines').select('*').order('order_index'),
+      supabase.from('disciplines').select('*, module_disciplines(module_id)').order('order_index'),
       supabase.from('user_progress').select('discipline_id').eq('user_id', user.id).eq('completed', true)
     ])
     setModules(modRes.data || [])
@@ -51,7 +51,7 @@ export default function Disciplines() {
       )}
 
       {visibleModules.map(mod => {
-        const moduleDisciplines = disciplines.filter(d => d.module_id === mod.id)
+        const moduleDisciplines = disciplines.filter(d => d.module_disciplines?.some(md => md.module_id === mod.id))
         return (
           <section key={mod.id} className="module-section">
             <div className="module-header">

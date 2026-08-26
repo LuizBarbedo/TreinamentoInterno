@@ -18,6 +18,7 @@ ORDER = [
     "migration_admin_reports.sql",
     "migration_publicos.sql",
     "migration_modules.sql",
+    "migration_module_disciplines_many.sql",
     "migration_badge_ranking.sql",
     "migration_forum.sql",
     "migration_forum_usernames.sql",
