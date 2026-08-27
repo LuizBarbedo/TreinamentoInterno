@@ -24,6 +24,8 @@ ORDER = [
     "migration_forum_usernames.sql",
     "migration_forum_admin_delete.sql",
     "migration_materials_upload.sql",
+    "migration_ai_chat_history.sql",
+    "migration_material_chunks.sql",
     "migration_self_signup.sql",
 ]
 

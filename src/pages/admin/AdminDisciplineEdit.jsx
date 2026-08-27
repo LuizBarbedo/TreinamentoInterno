@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiUpload, FiFile, FiClipboard, FiDownload, FiExternalLink, FiMessageSquare } from 'react-icons/fi'
+import { indexMaterial, reindexAllMaterials } from '../../lib/materialIndexer'
+import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiUpload, FiFile, FiClipboard, FiDownload, FiExternalLink, FiMessageSquare, FiRefreshCw } from 'react-icons/fi'
 import './AdminDisciplineEdit.css'
 
 // Normaliza os arquivos de apoio de uma atividade para um array [{ path, url, name }].
@@ -43,6 +44,8 @@ export default function AdminDisciplineEdit() {
   const [editingMaterialId, setEditingMaterialId] = useState(null)
   const [showMaterialForm, setShowMaterialForm] = useState(false)
   const [uploadingFile, setUploadingFile] = useState(false)
+  const [indexingMaterial, setIndexingMaterial] = useState(false)
+  const [reindexProgress, setReindexProgress] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const fileInputRef = useRef(null)
 
@@ -282,6 +285,7 @@ export default function AdminDisciplineEdit() {
         materialData.file_path = filePath
       }
 
+      let savedMaterial
       if (editingMaterialId) {
         // Se está editando e tem novo arquivo, deletar o antigo do storage
         if (selectedFile) {
@@ -290,9 +294,32 @@ export default function AdminDisciplineEdit() {
             await supabase.storage.from('materials').remove([oldMat.file_path])
           }
         }
-        await supabase.from('materials').update(materialData).eq('id', editingMaterialId)
+        const { data } = await supabase
+          .from('materials')
+          .update(materialData)
+          .eq('id', editingMaterialId)
+          .select()
+          .single()
+        savedMaterial = data
       } else {
-        await supabase.from('materials').insert({ ...materialData, discipline_id: id })
+        const { data } = await supabase
+          .from('materials')
+          .insert({ ...materialData, discipline_id: id })
+          .select()
+          .single()
+        savedMaterial = data
+      }
+
+      // Indexa (ou reindexa) o conteúdo do arquivo para a busca do chat de IA.
+      // Materiais sem arquivo (link/livro/artigo) não geram chunks.
+      if (savedMaterial && isFileUpload) {
+        setUploadingFile(false)
+        setIndexingMaterial(true)
+        await indexMaterial(savedMaterial, id)
+        setIndexingMaterial(false)
+      } else if (savedMaterial && editingMaterialId) {
+        // Tipo trocado de arquivo para link/livro/artigo: limpa chunks antigos
+        await supabase.from('material_chunks').delete().eq('material_id', savedMaterial.id)
       }
 
       resetMaterialForm()
@@ -304,6 +331,21 @@ export default function AdminDisciplineEdit() {
 
     setSaving(false)
     setUploadingFile(false)
+    setIndexingMaterial(false)
+  }
+
+  const reindexMaterials = async () => {
+    const fileMaterials = materials.filter(m => m.type === 'pdf' || m.type === 'word')
+    if (fileMaterials.length === 0) {
+      alert('Nenhum material em PDF/Word para indexar.')
+      return
+    }
+
+    setReindexProgress({ done: 0, total: fileMaterials.length })
+    await reindexAllMaterials(fileMaterials, id, () => {
+      setReindexProgress(p => (p ? { ...p, done: p.done + 1 } : p))
+    })
+    setReindexProgress(null)
   }
 
   const deleteMaterial = async (matId, title) => {
@@ -315,6 +357,7 @@ export default function AdminDisciplineEdit() {
       await supabase.storage.from('materials').remove([mat.file_path])
     }
 
+    // material_chunks é removido em cascata (ON DELETE CASCADE)
     await supabase.from('materials').delete().eq('id', matId)
     fetchAll()
   }
@@ -738,9 +781,22 @@ export default function AdminDisciplineEdit() {
         <div className="admin-section">
           <div className="section-toolbar">
             <h3>📎 Materiais de Apoio</h3>
-            <button className="btn-primary" onClick={() => { resetMaterialForm(); setShowMaterialForm(true) }}>
-              <FiPlus /> Novo Material
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-secondary"
+                onClick={reindexMaterials}
+                disabled={!!reindexProgress}
+                title="Reprocessa o conteúdo dos PDFs/Word para a busca do chat de IA"
+              >
+                <FiRefreshCw />{' '}
+                {reindexProgress
+                  ? `Indexando ${reindexProgress.done}/${reindexProgress.total}...`
+                  : 'Reindexar para IA'}
+              </button>
+              <button className="btn-primary" onClick={() => { resetMaterialForm(); setShowMaterialForm(true) }}>
+                <FiPlus /> Novo Material
+              </button>
+            </div>
           </div>
 
           {showMaterialForm && (
@@ -842,8 +898,14 @@ export default function AdminDisciplineEdit() {
               </div>
               <div className="form-actions">
                 <button className="btn-secondary" onClick={resetMaterialForm}>Cancelar</button>
-                <button className="btn-primary" onClick={saveMaterial} disabled={saving || uploadingFile}>
-                  {uploadingFile ? 'Enviando arquivo...' : saving ? 'Salvando...' : editingMaterialId ? 'Salvar' : 'Adicionar Material'}
+                <button className="btn-primary" onClick={saveMaterial} disabled={saving || uploadingFile || indexingMaterial}>
+                  {uploadingFile
+                    ? 'Enviando arquivo...'
+                    : indexingMaterial
+                      ? 'Indexando conteúdo...'
+                      : saving
+                        ? 'Salvando...'
+                        : editingMaterialId ? 'Salvar' : 'Adicionar Material'}
                 </button>
               </div>
             </div>

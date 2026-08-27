@@ -64,11 +64,24 @@ export default async function handler(req, res) {
     global: { headers: { Authorization: `Bearer ${token}` } }
   })
 
-  const [{ data: discipline }, { data: lessons }, { data: materials }] = await Promise.all([
+  const lastUserMessage = [...sanitizedMessages].reverse().find((m) => m.role === 'user')?.content || ''
+
+  const [{ data: discipline }, { data: lessons }, { data: materials }, { data: chunks, error: searchError }] = await Promise.all([
     scopedClient.from('disciplines').select('name, description').eq('id', disciplineId).single(),
     scopedClient.from('lessons').select('title, description').eq('discipline_id', disciplineId).order('order_index'),
-    scopedClient.from('materials').select('title, type').eq('discipline_id', disciplineId)
+    scopedClient.from('materials').select('title, type').eq('discipline_id', disciplineId),
+    lastUserMessage.trim()
+      ? scopedClient.rpc('search_material_chunks', {
+          p_discipline_id: disciplineId,
+          p_query: lastUserMessage.slice(0, 500),
+          p_match_count: 6
+        })
+      : Promise.resolve({ data: [], error: null })
   ])
+
+  if (searchError) {
+    console.error('Erro na busca full-text dos materiais:', searchError)
+  }
 
   const lessonsList = (lessons || [])
     .map((l, i) => `${i + 1}. ${l.title}${l.description ? ' — ' + l.description : ''}`)
@@ -77,6 +90,13 @@ export default async function handler(req, res) {
   const materialsList = (materials || [])
     .map((m) => `- ${m.title} (${m.type})`)
     .join('\n') || 'Nenhum material cadastrado.'
+
+  // RAG via busca textual (full-text search do Postgres, sem embeddings):
+  // traz os trechos dos materiais (PDF/Word) mais relevantes para a última
+  // pergunta do aluno, para o modelo responder com base no conteúdo real.
+  const contextChunks = (chunks || [])
+    .map((c, i) => `[Trecho ${i + 1} — ${c.material_title}]\n${c.content}`)
+    .join('\n\n')
 
   const systemPrompt = `Você é um assistente de estudos da plataforma Capacita Portos, especializado na disciplina "${discipline?.name || 'desconhecida'}".
 Descrição da disciplina: ${discipline?.description || 'sem descrição'}
@@ -87,7 +107,10 @@ ${lessonsList}
 Materiais de apoio:
 ${materialsList}
 
-Responda sempre em português, de forma clara e didática, apenas dúvidas relacionadas ao tema desta disciplina. Se a pergunta fugir do escopo da disciplina, oriente educadamente o aluno a perguntar algo relacionado ao conteúdo. Se não tiver informação suficiente para responder com precisão, diga isso e sugira que o aluno consulte o material da disciplina ou um administrador, em vez de inventar uma resposta.`
+Trechos do material da disciplina relevantes para a pergunta atual do aluno (resultado de busca textual, use-os como principal fonte de verdade para responder):
+${contextChunks || 'Nenhum trecho relevante encontrado no material indexado para esta pergunta.'}
+
+Responda sempre em português, de forma clara e didática, apenas dúvidas relacionadas ao tema desta disciplina. Priorize as informações dos trechos de material acima quando existirem. Se a pergunta fugir do escopo da disciplina, oriente educadamente o aluno a perguntar algo relacionado ao conteúdo. Se os trechos não cobrirem a pergunta e você não tiver informação suficiente para responder com precisão, diga isso e sugira que o aluno consulte o material da disciplina ou um administrador, em vez de inventar uma resposta.`
 
   try {
     const ollamaResponse = await fetch('https://ollama.com/v1/chat/completions', {
