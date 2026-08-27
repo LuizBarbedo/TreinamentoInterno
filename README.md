@@ -13,6 +13,7 @@ Plataforma do **Programa Capacita Portos** (capacitação profissional portuári
 - **Públicos** – conteúdo segmentado por público-alvo; cada funcionário pertence a um público e enxerga o conteúdo do seu público + o conteúdo geral.
 - **Badges / Conquistas** – sistema de gamificação com medalhas conquistadas conforme o desempenho.
 - **Fórum** – espaço de discussão entre os colaboradores.
+- **Chat de IA por disciplina** – aba "Dúvidas" dentro de cada disciplina, onde o aluno conversa com um assistente (Ollama Cloud) que responde com base no conteúdo daquela disciplina.
 - **Painel Master/Admin** – usuário master insere os conteúdos para os diferentes públicos e emite relatórios.
 
 ## Tecnologias
@@ -48,6 +49,8 @@ Plataforma do **Programa Capacita Portos** (capacitação profissional portuári
    | `VITE_SUPABASE_URL` | URL do projeto Supabase |
    | `VITE_SUPABASE_ANON_KEY` | Chave anônima do Supabase |
    | `VITE_PASSWORD_RESET_REDIRECT_URL` | URL completa de redefinição de senha |
+   | `OLLAMA_API_KEY` | Chave da Ollama Cloud, usada só pela function server-side `api/chat.js` (nunca vai pro bundle do frontend) |
+   | `OLLAMA_MODEL` | Nome do modelo da Ollama Cloud a usar no chat de IA (ex: `gpt-oss:120b-cloud`) |
 
 3. Aplique as migrações no Supabase executando os arquivos da pasta `supabase/` (começando por `schema.sql` e depois os arquivos `migration_*.sql`).
 
@@ -58,6 +61,8 @@ npm run dev
 ```
 
 A aplicação estará disponível em `http://localhost:8571`.
+
+> **Chat de IA (`api/chat.js`):** é uma Vercel Serverless Function e **não roda** com `npm run dev` puro (o Vite não serve `/api`). Para testar localmente, use `vercel dev` (com `OLLAMA_API_KEY` configurada no `.env`) ou teste em um deploy de preview na Vercel com a variável configurada no projeto.
 
 ## Build de produção
 
