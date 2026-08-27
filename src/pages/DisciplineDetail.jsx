@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
 import DisciplineChat from '../components/DisciplineChat'
-import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2, FiMessageCircle } from 'react-icons/fi'
+import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2 } from 'react-icons/fi'
 import './DisciplineDetail.css'
 
 // Normaliza os arquivos de apoio da atividade (formato novo `files` ou legado file_url)
@@ -558,13 +558,6 @@ export default function DisciplineDetail() {
             {practicalSubmission && <FiCheck className="tab-done-check" />}
           </button>
         )}
-        <button
-          className={`tab ${activeTab === 'duvidas' ? 'active' : ''}`}
-          onClick={() => setActiveTab('duvidas')}
-        >
-          <FiMessageCircle /> Dúvidas
-        </button>
-
         {hasFinalQuiz === false && allLessonsCompleted ? (
           <span className="tab tab-quiz tab-quiz-unlocked" title="Disciplina concluída - sem quiz final">
             <FiCheckCircle /> Disciplina Concluída
@@ -818,10 +811,6 @@ export default function DisciplineDetail() {
         </div>
       )}
 
-      {activeTab === 'duvidas' && (
-        <DisciplineChat disciplineId={id} />
-      )}
-
       {activeTab === 'atividade' && practicalActivity && (
         <div className="practical-activity">
           {/* Enunciado / conteúdo da atividade */}
@@ -1065,6 +1054,8 @@ export default function DisciplineDetail() {
 
       {/* Badge Unlocked Popup */}
       {newBadge && <BadgeUnlocked badge={newBadge} onClose={() => setNewBadge(null)} />}
+
+      <DisciplineChat disciplineId={id} disciplineName={discipline.name} />
     </div>
   )
 }
