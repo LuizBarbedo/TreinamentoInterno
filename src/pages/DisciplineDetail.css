@@ -1242,9 +1242,62 @@
   color: #b87503;
 }
 
-.pa-status-avaliada {
+.pa-status-avaliada,
+.pa-status-respondida {
   background: #e3f5ea;
   color: #2e9e5b;
+}
+
+/* ═══════════════════════════════════════════════
+   SUGESTÕES (aba do aluno)
+   ═══════════════════════════════════════════════ */
+.discipline-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sg-form-card .pa-submit-btn {
+  margin-top: 16px;
+}
+
+.sg-list-title {
+  margin: 0 0 4px;
+  color: #0f5e78;
+  font-size: 1.05rem;
+}
+
+.sg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sg-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sg-item-date {
+  font-size: 0.85rem;
+  color: #6b7c85;
+}
+
+.sg-item-content {
+  margin: 0;
+  color: #334;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.sg-item-response {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed #d6e3e6;
 }
 
 .pa-submitted-note {

@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { computeDisciplineBadges } from '../lib/badges'
 import { BadgeGrid, InlineBadges, BadgeUnlocked } from '../components/Badges'
 import DisciplineChat from '../components/DisciplineChat'
-import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2 } from 'react-icons/fi'
+import { FiPlay, FiFileText, FiCheckCircle, FiLock, FiCheck, FiX, FiDownload, FiClipboard, FiUpload, FiFile, FiEdit3, FiSend, FiExternalLink, FiTrash2, FiMessageSquare } from 'react-icons/fi'
 import './DisciplineDetail.css'
 
 // Normaliza os arquivos de apoio da atividade (formato novo `files` ou legado file_url)
@@ -50,6 +50,12 @@ export default function DisciplineDetail() {
   const [submissionFile, setSubmissionFile] = useState(null)
   const [submittingActivity, setSubmittingActivity] = useState(false)
   const submissionFileRef = useRef(null)
+
+  // Sugestões state
+  const [suggestions, setSuggestions] = useState([])
+  const [suggestionText, setSuggestionText] = useState('')
+  const [submittingSuggestion, setSubmittingSuggestion] = useState(false)
+
   const [activeLesson, setActiveLesson] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -114,7 +120,7 @@ export default function DisciplineDetail() {
   }, [allLessonsCompleted, hasFinalQuiz])
 
   const fetchData = async () => {
-    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, finalQuizRes, lessonQuizzesRes, activityRes] = await Promise.all([
+    const [discRes, lessonsRes, materialsRes, progressRes, quizResultsRes, finalResultRes, finalQuizRes, lessonQuizzesRes, activityRes, suggestionsRes] = await Promise.all([
       supabase.from('disciplines').select('*').eq('id', id).single(),
       supabase.from('lessons').select('*').eq('discipline_id', id).order('order_index'),
       supabase.from('materials').select('*').eq('discipline_id', id).order('created_at'),
@@ -124,6 +130,7 @@ export default function DisciplineDetail() {
       supabase.from('quiz_questions').select('id').eq('discipline_id', id).is('lesson_id', null).limit(1),
       supabase.from('quiz_questions').select('lesson_id').eq('discipline_id', id).not('lesson_id', 'is', null),
       supabase.from('practical_activities').select('*').eq('discipline_id', id).maybeSingle(),
+      supabase.from('discipline_suggestions').select('*').eq('discipline_id', id).eq('user_id', user.id).order('created_at', { ascending: false }),
     ])
 
     setHasFinalQuiz((finalQuizRes.data || []).length > 0)
@@ -132,6 +139,7 @@ export default function DisciplineDetail() {
     if (discRes.data) setDiscipline(discRes.data)
     if (lessonsRes.data) setLessons(lessonsRes.data)
     if (materialsRes.data) setMaterials(materialsRes.data)
+    setSuggestions(suggestionsRes.data || [])
 
     // Atividade Prática + entrega do aluno
     const activity = activityRes.data || null
@@ -482,6 +490,37 @@ export default function DisciplineDetail() {
     setSubmittingActivity(false)
   }
 
+  // ═══════════════════════════════════════
+  // SUGESTÕES — aluno envia sugestões para o professor da disciplina
+  // ═══════════════════════════════════════
+  const submitSuggestion = async () => {
+    if (!suggestionText.trim()) {
+      return alert('Escreva sua sugestão antes de enviar.')
+    }
+
+    setSubmittingSuggestion(true)
+    try {
+      const { data, error } = await supabase
+        .from('discipline_suggestions')
+        .insert({
+          discipline_id: id,
+          user_id: user.id,
+          content: suggestionText.trim(),
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setSuggestions(prev => [data, ...prev])
+      setSuggestionText('')
+    } catch (err) {
+      console.error('Erro ao enviar sugestão:', err)
+      alert('Erro ao enviar a sugestão. Tente novamente.')
+    }
+    setSubmittingSuggestion(false)
+  }
+
   if (loading) {
     return <div className="loading-screen"><div className="spinner"></div></div>
   }
@@ -558,6 +597,12 @@ export default function DisciplineDetail() {
             {practicalSubmission && <FiCheck className="tab-done-check" />}
           </button>
         )}
+        <button
+          className={`tab ${activeTab === 'sugestoes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sugestoes')}
+        >
+          <FiMessageSquare /> Sugestões{suggestions.length > 0 ? ` (${suggestions.length})` : ''}
+        </button>
         {hasFinalQuiz === false && allLessonsCompleted ? (
           <span className="tab tab-quiz tab-quiz-unlocked" title="Disciplina concluída - sem quiz final">
             <FiCheckCircle /> Disciplina Concluída
@@ -994,6 +1039,68 @@ export default function DisciplineDetail() {
             >
               <FiSend /> {submittingActivity ? 'Enviando...' : practicalSubmission ? 'Reenviar Atividade' : 'Entregar Atividade'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'sugestoes' && (
+        <div className="discipline-suggestions">
+          <div className="pa-card sg-form-card">
+            <div className="pa-content-header">
+              <span className="pa-icon"><FiMessageSquare /></span>
+              <div>
+                <h2>Sugestões</h2>
+                <p className="pa-subtitle">
+                  Envie sugestões, dúvidas ou comentários sobre a matéria, o conteúdo ou as aulas.
+                  Sua mensagem será encaminhada ao professor responsável por esta disciplina.
+                </p>
+              </div>
+            </div>
+
+            <textarea
+              className="pa-textarea"
+              value={suggestionText}
+              onChange={e => setSuggestionText(e.target.value)}
+              placeholder="Escreva aqui a sua sugestão..."
+              rows={5}
+            />
+
+            <button
+              className="pa-submit-btn"
+              onClick={submitSuggestion}
+              disabled={submittingSuggestion}
+            >
+              <FiSend /> {submittingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
+            </button>
+          </div>
+
+          <div className="sg-list">
+            <h3 className="sg-list-title">Suas sugestões enviadas</h3>
+            {suggestions.length === 0 ? (
+              <div className="empty-state">
+                <p>Você ainda não enviou nenhuma sugestão para esta disciplina.</p>
+              </div>
+            ) : (
+              suggestions.map(sug => (
+                <div key={sug.id} className="pa-card sg-item-card">
+                  <div className="sg-item-header">
+                    <span className="sg-item-date">
+                      {new Date(sug.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span className={`pa-status pa-status-${sug.status}`}>
+                      {sug.status === 'respondida' ? 'Respondida' : 'Aguardando resposta'}
+                    </span>
+                  </div>
+                  <p className="sg-item-content">{sug.content}</p>
+                  {sug.status === 'respondida' && sug.admin_response && (
+                    <div className="pa-feedback-text sg-item-response">
+                      <strong>Resposta do professor:</strong>
+                      <p>{sug.admin_response}</p>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
