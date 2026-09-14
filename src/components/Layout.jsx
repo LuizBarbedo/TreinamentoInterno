@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus, FiGrid } from 'react-icons/fi'
+import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus, FiGrid, FiUnlock, FiClock } from 'react-icons/fi'
 import { HomeIcon, BookOpenIcon, MedalIcon, BarChartIcon, GraduationCapIcon } from './Icons'
 import './Layout.css'
 
 export default function Layout() {
-  const { user, signOut, isAdmin } = useAuth()
+  const { user, signOut, isAdmin, canAccessContent } = useAuth()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(true)
   const [hovering, setHovering] = useState(false)
@@ -19,6 +19,26 @@ export default function Layout() {
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'
+
+  // Trava geral: o admin ainda não liberou o conteúdo para a turma.
+  // Alunos comuns caem numa tela de espera; admin segue normalmente.
+  if (!isAdmin && !canAccessContent) {
+    return (
+      <div className="content-locked">
+        <div className="content-locked-card">
+          <FiClock size={40} />
+          <h1>Turma ainda não liberada</h1>
+          <p>
+            As aulas ainda não foram liberadas pela coordenação. Assim que a turma for
+            autorizada a começar, você poderá acessar as disciplinas por aqui.
+          </p>
+          <button className="btn-logout" onClick={handleSignOut}>
+            <FiLogOut /> Sair
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // Fecha sidebar no mobile ao navegar
   const isMobile = () => window.innerWidth <= 768
@@ -83,6 +103,9 @@ export default function Layout() {
               </NavLink>
               <NavLink to="/admin/usuarios" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
                 <FiUserPlus /> <span>Cadastrar Usuários</span>
+              </NavLink>
+              <NavLink to="/admin/liberacao" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
+                <FiUnlock /> <span>Liberação da Turma</span>
               </NavLink>
             </>
           )}

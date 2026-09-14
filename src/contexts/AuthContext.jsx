@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
   const [publico, setPublico] = useState('geral') // 'geral' (conteúdo aberto) | 'estrategico' | 'tatico' | 'operacional'
   const [fullAccess, setFullAccess] = useState(false) // libera todo o conteúdo sem travas (coordenação)
   const [mustResetPassword, setMustResetPassword] = useState(false)
+  const [contentReleased, setContentReleased] = useState(false) // trava geral: admin ainda não liberou as aulas para a turma
 
   const configuredResetRedirect = import.meta.env.VITE_PASSWORD_RESET_REDIRECT_URL?.trim()
   const passwordResetRedirectTo = configuredResetRedirect || `${window.location.origin}/redefinir-senha`
@@ -82,6 +83,19 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const fetchContentReleased = async () => {
+    try {
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('content_released')
+        .eq('id', 1)
+        .single()
+      setContentReleased(Boolean(data?.content_released))
+    } catch {
+      setContentReleased(false)
+    }
+  }
+
   useEffect(() => {
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
@@ -95,6 +109,8 @@ export function AuthProvider({ children }) {
       .finally(() => {
         setLoading(false)
       })
+
+    fetchContentReleased()
 
     let subscription
     try {
@@ -110,7 +126,21 @@ export function AuthProvider({ children }) {
       console.warn('Erro ao configurar auth listener:', err.message)
     }
 
-    return () => subscription?.unsubscribe()
+    // Escuta em tempo real para a trava cair para todo mundo assim que o
+    // admin liberar, sem precisar de refresh/relogin.
+    const channel = supabase
+      .channel('platform_settings_changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'platform_settings' },
+        (payload) => setContentReleased(Boolean(payload.new?.content_released))
+      )
+      .subscribe()
+
+    return () => {
+      subscription?.unsubscribe()
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const signIn = async (email, password) => {
@@ -169,8 +199,11 @@ export function AuthProvider({ children }) {
     setMustResetPassword(false)
   }
 
+  // Trava geral: só admin e full_access (coordenação) acessam antes da liberação
+  const canAccessContent = isAdmin || fullAccess || contentReleased
+
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, userRole, publico, fullAccess, mustResetPassword, signIn, signUp, signOut, resetPassword, updatePassword }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, userRole, publico, fullAccess, mustResetPassword, contentReleased, canAccessContent, signIn, signUp, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )
