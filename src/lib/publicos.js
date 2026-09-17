@@ -19,7 +19,7 @@ export const PUBLICO_DESCRIPTIONS = {
   estrategico: 'Superintendentes e Diretoria Executiva',
   tatico: 'Gerentes, Coordenadores e Agentes de Contratação',
   operacional: 'Técnicos, Analistas e Guarda Portuária',
-  externo: 'Profissionais externos à Autoridade Portuária, com acesso a todo o conteúdo do programa',
+  externo: 'Profissionais externos à Autoridade Portuária',
 }
 
 // Opções prontas para selects no painel master ({ value, label }).
