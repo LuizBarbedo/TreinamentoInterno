@@ -570,13 +570,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Cada funcionário pertence a UM público e enxerga o conteúdo do seu público
 -- + o conteúdo marcado como "geral".
 --
--- Públicos das PESSOAS (3, conforme segmentação oficial do programa):
+-- Públicos das PESSOAS (conforme segmentação oficial do programa + externo):
 --   estrategico -> Superintendentes e Diretoria Executiva
 --   tatico      -> Gerentes, Coordenadores, Agentes de Contratação
 --   operacional -> Técnicos, Analistas, Guarda Portuária
+--   externo     -> Público externo à Autoridade Portuária, acesso irrestrito
+--                  a todo o conteúdo (bypass total, ver canSeePublico em
+--                  src/lib/publicos.js)
 --
 -- 'geral' existe no enum apenas para marcar CONTEÚDO (módulo/disciplina)
--- visível para os 3 públicos acima — nenhuma pessoa é cadastrada como 'geral'.
+-- visível para os 3 públicos internos acima — nenhuma pessoa é cadastrada
+-- como 'geral'.
 --
 -- Padrão: todos os usuários iniciam em 'estrategico'. O master pode alterar depois.
 -- Pré-requisito: migration_admin_roles.sql (cria user_roles e is_admin()).
@@ -586,7 +590,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'publico_enum') THEN
-    CREATE TYPE publico_enum AS ENUM ('geral', 'estrategico', 'tatico', 'operacional');
+    CREATE TYPE publico_enum AS ENUM ('geral', 'estrategico', 'tatico', 'operacional', 'externo');
   END IF;
 END$$;
 
@@ -627,7 +631,7 @@ BEGIN
     RAISE EXCEPTION 'Acesso negado: apenas o usuário master pode alterar públicos';
   END IF;
 
-  IF p_publico NOT IN ('geral', 'estrategico', 'tatico', 'operacional') THEN
+  IF p_publico NOT IN ('geral', 'estrategico', 'tatico', 'operacional', 'externo') THEN
     RAISE EXCEPTION 'Público inválido: %', p_publico;
   END IF;
 
@@ -1540,7 +1544,7 @@ BEGIN
     RAISE EXCEPTION 'CPF inválido';
   END IF;
 
-  IF p_publico NOT IN ('estrategico', 'tatico', 'operacional') THEN
+  IF p_publico NOT IN ('estrategico', 'tatico', 'operacional', 'externo') THEN
     RAISE EXCEPTION 'Módulo inválido: %', p_publico;
   END IF;
 

@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRole, setUserRole] = useState('user') // 'admin' | 'user'
-  const [publico, setPublico] = useState('geral') // 'geral' (conteúdo aberto) | 'estrategico' | 'tatico' | 'operacional'
+  const [publico, setPublico] = useState('geral') // 'geral' (conteúdo aberto) | 'estrategico' | 'tatico' | 'operacional' | 'externo' (acesso irrestrito)
   const [fullAccess, setFullAccess] = useState(false) // libera todo o conteúdo sem travas (coordenação)
   const [mustResetPassword, setMustResetPassword] = useState(false)
   const [contentReleased, setContentReleased] = useState(false) // trava geral: admin ainda não liberou as aulas para a turma

@@ -6,8 +6,9 @@ import { PUBLICO_LABELS, PUBLICO_DESCRIPTIONS } from '../lib/publicos'
 import logoImg from '../assets/logo-capacita-portos-branco.png'
 import './Signup.css'
 
-// Os 3 públicos oficiais do programa, disponíveis para autocadastro.
-const MODULOS_DISPONIVEIS = ['estrategico', 'tatico', 'operacional']
+// Os públicos oficiais do programa, disponíveis para autocadastro:
+// os 3 internos + "externo" (acesso irrestrito a todo o conteúdo).
+const MODULOS_DISPONIVEIS = ['estrategico', 'tatico', 'operacional', 'externo']
 
 export default function Signup() {
   const [fullName, setFullName] = useState('')
