@@ -101,7 +101,10 @@ export function AuthProvider({ children }) {
       .then(({ data: { session } }) => {
         const currentUser = session?.user ?? null
         setUser(currentUser)
-        return checkRoles(currentUser)
+        // Só busca a trava depois que a sessão (se houver) já foi restaurada,
+        // senão a requisição sai como anônima e a RLS (só "authenticated")
+        // nega a leitura, travando content_released em false pro resto da aba.
+        return Promise.all([checkRoles(currentUser), fetchContentReleased()])
       })
       .catch((err) => {
         console.warn('Erro ao obter sessão:', err.message)
@@ -110,8 +113,6 @@ export function AuthProvider({ children }) {
         setLoading(false)
       })
 
-    fetchContentReleased()
-
     let subscription
     try {
       const { data } = supabase.auth.onAuthStateChange(
@@ -119,6 +120,9 @@ export function AuthProvider({ children }) {
           const currentUser = session?.user ?? null
           setUser(currentUser)
           checkRoles(currentUser)
+          // Reconsulta com a sessão já autenticada — cobre login e o
+          // autocadastro (SIGNED_IN logo após supabase.auth.signUp()).
+          fetchContentReleased()
         }
       )
       subscription = data?.subscription
