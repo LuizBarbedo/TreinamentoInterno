@@ -39,6 +39,21 @@ export default function Disciplines() {
   // o funcionário vê os do seu público + os "geral".
   const visibleModules = (isAdmin || fullAccess) ? modules : filterByPublico(modules, publico)
 
+  // Uma disciplina pode estar vinculada a mais de um módulo (ex: módulos de
+  // públicos diferentes). Quem enxerga vários módulos ao mesmo tempo (público
+  // "externo", admin, full_access) via a mesma disciplina repetida em cada
+  // seção — aqui ela só aparece na primeira seção (por order_index) em que surge.
+  const shownDisciplineIds = new Set()
+  const moduleSections = visibleModules.map(mod => {
+    const allModuleDisciplines = disciplines.filter(d => d.module_disciplines?.some(md => md.module_id === mod.id))
+    const moduleDisciplines = allModuleDisciplines.filter(d => {
+      if (shownDisciplineIds.has(d.id)) return false
+      shownDisciplineIds.add(d.id)
+      return true
+    })
+    return { mod, moduleDisciplines, isEmpty: allModuleDisciplines.length === 0 }
+  })
+
   return (
     <div className="disciplines-page">
       <h1>📚 Conteúdo do Programa</h1>
@@ -50,44 +65,43 @@ export default function Disciplines() {
         </div>
       )}
 
-      {visibleModules.map(mod => {
-        const moduleDisciplines = disciplines.filter(d => d.module_disciplines?.some(md => md.module_id === mod.id))
-        return (
-          <section key={mod.id} className="module-section">
-            <div className="module-header">
-              <span className="module-icon">{mod.icon || '📦'}</span>
-              <div className="module-title">
-                <h2>{mod.name}</h2>
-                {mod.description && <p>{mod.description}</p>}
+      {moduleSections.map(({ mod, moduleDisciplines, isEmpty }) => (
+        <section key={mod.id} className="module-section">
+          <div className="module-header">
+            <span className="module-icon">{mod.icon || '📦'}</span>
+            <div className="module-title">
+              <h2>{mod.name}</h2>
+              {mod.description && <p>{mod.description}</p>}
+            </div>
+            <span className="module-publico">{PUBLICO_LABELS[mod.publico] || mod.publico}</span>
+          </div>
+
+          <div className="disciplines-list">
+            {moduleDisciplines.map(disc => {
+              const isCompleted = completedDisciplines.has(disc.id)
+              return (
+                <Link key={disc.id} to={`/disciplinas/${disc.id}`} className={`discipline-item ${isCompleted ? 'discipline-completed' : ''}`}>
+                  <div className="disc-icon">{disc.icon || '📖'}</div>
+                  <div className="disc-info">
+                    <h3>{disc.name}</h3>
+                    <p>{disc.description}</p>
+                    {isCompleted && <span className="disc-completed-badge"><FiCheck /> Concluída</span>}
+                  </div>
+                  <div className="disc-arrow">{isCompleted ? <FiCheck /> : '→'}</div>
+                </Link>
+              )
+            })}
+
+            {/* Se ficou vazio só porque as disciplinas já apareceram em outro
+                módulo, não mostramos a mensagem de "módulo vazio". */}
+            {isEmpty && (
+              <div className="empty-state">
+                <p>Nenhuma disciplina neste módulo ainda.</p>
               </div>
-              <span className="module-publico">{PUBLICO_LABELS[mod.publico] || mod.publico}</span>
-            </div>
-
-            <div className="disciplines-list">
-              {moduleDisciplines.map(disc => {
-                const isCompleted = completedDisciplines.has(disc.id)
-                return (
-                  <Link key={disc.id} to={`/disciplinas/${disc.id}`} className={`discipline-item ${isCompleted ? 'discipline-completed' : ''}`}>
-                    <div className="disc-icon">{disc.icon || '📖'}</div>
-                    <div className="disc-info">
-                      <h3>{disc.name}</h3>
-                      <p>{disc.description}</p>
-                      {isCompleted && <span className="disc-completed-badge"><FiCheck /> Concluída</span>}
-                    </div>
-                    <div className="disc-arrow">{isCompleted ? <FiCheck /> : '→'}</div>
-                  </Link>
-                )
-              })}
-
-              {moduleDisciplines.length === 0 && (
-                <div className="empty-state">
-                  <p>Nenhuma disciplina neste módulo ainda.</p>
-                </div>
-              )}
-            </div>
-          </section>
-        )
-      })}
+            )}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
