@@ -25,3 +25,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Relatório de acompanhamento de alunos — dados reais (PII) e saída gerada,
+# não versionar. O exemplo fictício em relatorios/exemplo/ fica de fora
+# desta regra.
+relatorios/relatorio_dados*.json
+relatorios/relatorio_acompanhamento*.pdf
+relatorios/venv/

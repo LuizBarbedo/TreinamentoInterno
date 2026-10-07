@@ -1,0 +1,235 @@
+{
+  "gerado_em": "2026-10-06T14:32:00Z",
+  "plataforma": {
+    "total_alunos": 3,
+    "total_modulos": 3,
+    "total_disciplinas": 3,
+    "total_aulas": 12,
+    "total_atividades_praticas_cadastradas": 3,
+    "total_submissoes_praticas": 2,
+    "submissoes_praticas_pendentes": 1,
+    "submissoes_praticas_avaliadas": 1,
+    "total_sugestoes": 2,
+    "sugestoes_pendentes": 1,
+    "total_posts_forum": 2,
+    "total_respostas_forum": 1,
+    "total_mensagens_chat_ia": 9,
+    "media_nota_quiz_final": 78.5,
+    "media_nota_quiz_aula": 83.2,
+    "alunos_que_concluiram_ao_menos_1_disciplina": 1,
+    "alunos_sem_nenhuma_atividade_registrada": 1
+  },
+  "ranking_badges": [
+    {"posicao": 1, "nome": "Maria Souza", "badges": 9},
+    {"posicao": 2, "nome": "João Pereira", "badges": 3}
+  ],
+  "disciplinas_overview": [
+    {
+      "nome": "Segurança Portuária",
+      "total_aulas": 5,
+      "alunos_com_atividade": 2,
+      "alunos_concluiram": 1,
+      "media_quiz_final": 85.0,
+      "taxa_aprovacao_quiz_final_pct": 100.0,
+      "submissoes_atividade_pratica": 2,
+      "sugestoes_recebidas": 1
+    },
+    {
+      "nome": "Legislação Aduaneira",
+      "total_aulas": 4,
+      "alunos_com_atividade": 2,
+      "alunos_concluiram": 0,
+      "media_quiz_final": 72.0,
+      "taxa_aprovacao_quiz_final_pct": 50.0,
+      "submissoes_atividade_pratica": 0,
+      "sugestoes_recebidas": 1
+    },
+    {
+      "nome": "Gestão de Riscos",
+      "total_aulas": 3,
+      "alunos_com_atividade": 0,
+      "alunos_concluiram": 0,
+      "media_quiz_final": 0,
+      "taxa_aprovacao_quiz_final_pct": null,
+      "submissoes_atividade_pratica": 0,
+      "sugestoes_recebidas": 0
+    }
+  ],
+  "alunos": [
+    {
+      "perfil": {
+        "id": "u1",
+        "nome": "Maria Souza",
+        "email": "maria.souza@example.com",
+        "cpf": "11122233344",
+        "publico": "operacional",
+        "acesso_irrestrito": false,
+        "cadastrado_em": "2026-06-01T10:00:00Z",
+        "ultimo_acesso": "2026-10-05T09:12:00Z"
+      },
+      "resumo": {
+        "badges": 9,
+        "posicao_ranking_badges": 1,
+        "disciplinas_concluidas": 1,
+        "disciplinas_com_atividade": 2,
+        "total_aulas_concluidas": 9,
+        "media_quiz_final": 85.0,
+        "media_quiz_aula": 90.0,
+        "total_submissoes_praticas": 1,
+        "total_sugestoes_enviadas": 1,
+        "total_posts_forum": 1,
+        "total_respostas_forum": 1,
+        "total_mensagens_chat_ia": 6
+      },
+      "disciplinas": [
+        {
+          "nome": "Segurança Portuária",
+          "aulas_concluidas": 5,
+          "total_aulas": 5,
+          "quiz_final": {"nota": 85, "corretas": 8, "total": 10, "aprovado": true, "respondido_em": "2026-07-10T15:00:00Z"},
+          "quizzes_por_aula": [
+            {"aula": "Introdução à segurança portuária", "nota": 100, "corretas": 3, "total": 3, "respondido_em": "2026-06-05T11:00:00Z"},
+            {"aula": "Normas da ANTAQ", "nota": 67, "corretas": 2, "total": 3, "respondido_em": "2026-06-12T11:30:00Z"}
+          ],
+          "atividade_pratica": {
+            "titulo_atividade": "Plano de Resposta a Emergências",
+            "status": "avaliada",
+            "tipo_entrega": "file",
+            "nome_arquivo": "plano_emergencia_maria.docx",
+            "nota": "9,5",
+            "devolutiva_admin": "Excelente trabalho, muito completo. Só faltou detalhar o protocolo de evacuação.",
+            "enviado_em": "2026-07-15T18:40:00Z",
+            "avaliado_em": "2026-07-18T09:00:00Z"
+          },
+          "sugestoes_enviadas": [
+            {"conteudo": "Poderia ter um exemplo prático de simulado de incêndio no porto.", "status": "respondida", "resposta_admin": "Boa ideia! Vamos incluir na próxima atualização do curso.", "enviado_em": "2026-07-20T08:00:00Z"}
+          ],
+          "mensagens_chat_ia": 4
+        },
+        {
+          "nome": "Legislação Aduaneira",
+          "aulas_concluidas": 4,
+          "total_aulas": 4,
+          "quiz_final": {"nota": 85, "corretas": 17, "total": 20, "aprovado": true, "respondido_em": "2026-09-02T10:00:00Z"},
+          "quizzes_por_aula": [],
+          "atividade_pratica": null,
+          "sugestoes_enviadas": [],
+          "mensagens_chat_ia": 2
+        }
+      ],
+      "forum": {
+        "posts_criados": [
+          {"titulo": "Dúvida sobre NR-29", "categoria": "pergunta", "disciplina": "Segurança Portuária", "criado_em": "2026-07-01T12:00:00Z", "curtidas_recebidas": 3, "respostas_recebidas": 1}
+        ],
+        "respostas_dadas": [
+          {"post_titulo": "Como funciona o desembaraço aduaneiro?", "trecho": "Na minha experiência, o processo passa primeiro pela conferência documental e depois pela física quando sinalizado...", "marcada_como_solucao": true, "criado_em": "2026-07-22T14:00:00Z"}
+        ],
+        "curtidas_dadas": 5,
+        "curtidas_recebidas": 3
+      },
+      "chat_ia": {
+        "total_mensagens_enviadas": 6,
+        "ultima_interacao": "2026-09-28T16:45:00Z",
+        "por_disciplina": [
+          {"disciplina": "Segurança Portuária", "mensagens": 4},
+          {"disciplina": "Legislação Aduaneira", "mensagens": 2}
+        ]
+      }
+    },
+    {
+      "perfil": {
+        "id": "u2",
+        "nome": "João Pereira",
+        "email": "joao.pereira@example.com",
+        "cpf": "55566677788",
+        "publico": "tatico",
+        "acesso_irrestrito": false,
+        "cadastrado_em": "2026-06-10T09:00:00Z",
+        "ultimo_acesso": "2026-10-01T20:30:00Z"
+      },
+      "resumo": {
+        "badges": 3,
+        "posicao_ranking_badges": 2,
+        "disciplinas_concluidas": 0,
+        "disciplinas_com_atividade": 1,
+        "total_aulas_concluidas": 2,
+        "media_quiz_final": null,
+        "media_quiz_aula": 75.0,
+        "total_submissoes_praticas": 1,
+        "total_sugestoes_enviadas": 1,
+        "total_posts_forum": 1,
+        "total_respostas_forum": 0,
+        "total_mensagens_chat_ia": 3
+      },
+      "disciplinas": [
+        {
+          "nome": "Legislação Aduaneira",
+          "aulas_concluidas": 2,
+          "total_aulas": 4,
+          "quiz_final": null,
+          "quizzes_por_aula": [
+            {"aula": "Regimes aduaneiros especiais", "nota": 75, "corretas": 3, "total": 4, "respondido_em": "2026-08-20T10:00:00Z"}
+          ],
+          "atividade_pratica": {
+            "titulo_atividade": "Estudo de caso — importação temporária",
+            "status": "pendente",
+            "tipo_entrega": "text",
+            "nome_arquivo": null,
+            "nota": null,
+            "devolutiva_admin": null,
+            "enviado_em": "2026-09-30T19:00:00Z",
+            "avaliado_em": null
+          },
+          "sugestoes_enviadas": [
+            {"conteudo": "Faltou um glossário com os termos técnicos usados nas aulas.", "status": "pendente", "resposta_admin": null, "enviado_em": "2026-09-30T19:10:00Z"}
+          ],
+          "mensagens_chat_ia": 3
+        }
+      ],
+      "forum": {
+        "posts_criados": [
+          {"titulo": "Alguém tem material extra sobre regimes especiais?", "categoria": "discussao", "disciplina": "Legislação Aduaneira", "criado_em": "2026-09-25T13:00:00Z", "curtidas_recebidas": 0, "respostas_recebidas": 0}
+        ],
+        "respostas_dadas": [],
+        "curtidas_dadas": 1,
+        "curtidas_recebidas": 0
+      },
+      "chat_ia": {
+        "total_mensagens_enviadas": 3,
+        "ultima_interacao": "2026-10-01T20:00:00Z",
+        "por_disciplina": [
+          {"disciplina": "Legislação Aduaneira", "mensagens": 3}
+        ]
+      }
+    },
+    {
+      "perfil": {
+        "id": "u3",
+        "nome": "Carla Mendes",
+        "email": "carla.mendes@example.com",
+        "cpf": null,
+        "publico": "externo",
+        "acesso_irrestrito": true,
+        "cadastrado_em": "2026-09-28T08:00:00Z",
+        "ultimo_acesso": null
+      },
+      "resumo": {
+        "badges": 0,
+        "posicao_ranking_badges": null,
+        "disciplinas_concluidas": 0,
+        "disciplinas_com_atividade": 0,
+        "total_aulas_concluidas": 0,
+        "media_quiz_final": null,
+        "media_quiz_aula": null,
+        "total_submissoes_praticas": 0,
+        "total_sugestoes_enviadas": 0,
+        "total_posts_forum": 0,
+        "total_respostas_forum": 0,
+        "total_mensagens_chat_ia": 0
+      },
+      "disciplinas": [],
+      "forum": {"posts_criados": [], "respostas_dadas": [], "curtidas_dadas": 0, "curtidas_recebidas": 0},
+      "chat_ia": {"total_mensagens_enviadas": 0, "ultima_interacao": null, "por_disciplina": []}
+    }
+  ]
+}

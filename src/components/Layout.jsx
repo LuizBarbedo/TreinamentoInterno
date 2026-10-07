@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus, FiGrid, FiUnlock, FiClock } from 'react-icons/fi'
+import { FiLogOut, FiUser, FiSettings, FiMessageSquare, FiMenu, FiX, FiUserPlus, FiGrid, FiUnlock, FiClock, FiClipboard, FiMessageCircle } from 'react-icons/fi'
 import { HomeIcon, BookOpenIcon, MedalIcon, BarChartIcon, GraduationCapIcon } from './Icons'
 import './Layout.css'
 
@@ -103,6 +103,12 @@ export default function Layout() {
               </NavLink>
               <NavLink to="/admin/usuarios" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
                 <FiUserPlus /> <span>Cadastrar Usuários</span>
+              </NavLink>
+              <NavLink to="/admin/correcoes" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
+                <FiClipboard /> <span>Correção de Atividades</span>
+              </NavLink>
+              <NavLink to="/admin/sugestoes" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
+                <FiMessageCircle /> <span>Sugestões</span>
               </NavLink>
               <NavLink to="/admin/liberacao" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={handleNavClick}>
                 <FiUnlock /> <span>Liberação da Turma</span>

@@ -17,6 +17,8 @@ import AdminDisciplineEdit from './pages/admin/AdminDisciplineEdit'
 import AdminReports from './pages/admin/AdminReports'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminLiberacao from './pages/admin/AdminLiberacao'
+import AdminCorrecoes from './pages/admin/AdminCorrecoes'
+import AdminSugestoes from './pages/admin/AdminSugestoes'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Forum from './pages/Forum'
@@ -88,6 +90,12 @@ function App() {
             } />
             <Route path="/admin/liberacao" element={
               <AdminRoute><AdminLiberacao /></AdminRoute>
+            } />
+            <Route path="/admin/correcoes" element={
+              <AdminRoute><AdminCorrecoes /></AdminRoute>
+            } />
+            <Route path="/admin/sugestoes" element={
+              <AdminRoute><AdminSugestoes /></AdminRoute>
             } />
           </Route>
 
